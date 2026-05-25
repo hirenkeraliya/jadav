@@ -47,8 +47,12 @@
           <td><span class="badge badge-{{ $inv->status }}">{{ ucfirst($inv->status) }}</span></td>
           <td>
             <div style="display:flex;gap:5px;justify-content:flex-end">
-              <a href="{{ route('invoices.show', $inv) }}" class="btn btn-secondary btn-xs">View</a>
-              <a href="{{ route('invoices.pdf', $inv) }}" target="_blank" class="btn btn-secondary btn-xs">PDF</a>
+              <a href="{{ route('invoices.show', $inv) }}" class="btn btn-secondary btn-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View
+              </a>
+              <a href="{{ route('invoices.pdf', $inv) }}" target="_blank" class="btn btn-secondary btn-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+              </a>
             </div>
           </td>
         </tr>

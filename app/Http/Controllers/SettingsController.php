@@ -18,7 +18,7 @@ class SettingsController extends Controller
     use ScopedToCompany;
 
     // ── Company ──────────────────────────────────────────────────────────────
-    public function company(): View
+    public function showCompany(): View
     {
         $company = $this->company();
         return view('settings.company', compact('company'));
@@ -142,8 +142,8 @@ class SettingsController extends Controller
     // ── Terms Templates ───────────────────────────────────────────────────────
     public function terms(): View
     {
-        $templates = TermsTemplate::where('company_id', $this->companyId())->get();
-        return view('settings.terms', compact('templates'));
+        $terms = TermsTemplate::where('company_id', $this->companyId())->get();
+        return view('settings.terms', compact('terms'));
     }
 
     public function storeTerms(Request $request): RedirectResponse

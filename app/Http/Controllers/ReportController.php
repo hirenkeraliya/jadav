@@ -21,9 +21,11 @@ class ReportController extends Controller
 
     public function finance(Request $request): View
     {
-        $cid = $this->companyId();
-        $from = $request->input('from', now()->startOfMonth()->toDateString());
-        $to   = $request->input('to', now()->toDateString());
+        $cid     = $this->companyId();
+        $company = $this->company();
+        $from    = $request->input('from', now()->startOfMonth()->toDateString());
+        $to      = $request->input('to', now()->toDateString());
+        $groupBy = $request->input('group_by', 'project');
 
         $entries = FinanceEntry::where('company_id', $cid)
             ->whereBetween('date', [$from, $to])
@@ -31,64 +33,78 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        $totalCredit = $entries->where('type', 'credit')->sum('amount');
-        $totalDebit  = $entries->where('type', 'debit')->sum('amount');
-        $netBalance  = $totalCredit - $totalDebit;
+        $summary = [
+            'total_credit' => $entries->where('type', 'credit')->sum('amount'),
+            'total_debit'  => $entries->where('type', 'debit')->sum('amount'),
+            'net'          => $entries->where('type', 'credit')->sum('amount') - $entries->where('type', 'debit')->sum('amount'),
+        ];
 
-        $byProject = $entries->groupBy('project_id')->map(function ($group) {
-            return [
-                'project'  => $group->first()->project,
-                'received' => $group->where('type', 'credit')->sum('amount'),
-                'expense'  => $group->where('type', 'debit')->sum('amount'),
+        $grouped = $entries->groupBy(function ($e) use ($groupBy) {
+            if ($groupBy === 'month') return $e->date->format('Y-m');
+            if ($groupBy === 'type')  return $e->finance_entry_type_id ?? 'none';
+            return $e->project_id ?? 'none';
+        })->map(function ($group) use ($groupBy) {
+            $first = $group->first();
+            if ($groupBy === 'month') {
+                $label = $first->date->format('M Y');
+            } elseif ($groupBy === 'type') {
+                $label = $first->entryType->name ?? 'No Type';
+            } else {
+                $label = $first->project->name ?? 'No Project';
+            }
+            return (object) [
+                'group_label'  => $label,
+                'total_credit' => $group->where('type', 'credit')->sum('amount'),
+                'total_debit'  => $group->where('type', 'debit')->sum('amount'),
             ];
-        });
+        })->values();
 
-        return view('reports.finance', compact('entries', 'totalCredit', 'totalDebit', 'netBalance', 'byProject', 'from', 'to'));
+        return view('reports.finance', compact('entries', 'summary', 'grouped', 'company', 'from', 'to', 'groupBy'));
     }
 
     public function quotations(Request $request): View
     {
-        $cid = $this->companyId();
-        $from = $request->input('from', now()->startOfYear()->toDateString());
-        $to   = $request->input('to', now()->toDateString());
+        $cid     = $this->companyId();
+        $company = $this->company();
+        $from    = $request->input('from', now()->startOfYear()->toDateString());
+        $to      = $request->input('to', now()->toDateString());
 
-        $total     = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->count();
-        $converted = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->where('status', 'converted')->count();
-        $accepted  = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->where('status', 'accepted')->count();
-        $rejected  = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->where('status', 'rejected')->count();
-        $conversionRate = $total > 0 ? round(($converted / $total) * 100, 1) : 0;
+        $base = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to]);
 
-        $totalValue     = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->sum('total');
-        $convertedValue = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->where('status', 'converted')->sum('total');
+        $stats = [
+            'total'          => (clone $base)->count(),
+            'sent'           => (clone $base)->where('status', 'sent')->count(),
+            'accepted'       => (clone $base)->where('status', 'accepted')->count(),
+            'rejected'       => (clone $base)->where('status', 'rejected')->count(),
+            'converted'      => (clone $base)->where('status', 'converted')->count(),
+            'total_value'    => (clone $base)->sum('total'),
+            'accepted_value' => (clone $base)->where('status', 'accepted')->sum('total'),
+            'pending_value'  => (clone $base)->whereIn('status', ['draft', 'sent'])->sum('total'),
+        ];
 
-        $quotations = Quotation::where('company_id', $cid)->whereBetween('date', [$from, $to])->with('customer')->latest()->get();
+        $quotations = (clone $base)->with('customer')->latest()->get();
 
-        return view('reports.quotations', compact(
-            'total', 'converted', 'accepted', 'rejected', 'conversionRate',
-            'totalValue', 'convertedValue', 'quotations', 'from', 'to'
-        ));
+        return view('reports.quotations', compact('stats', 'company', 'quotations', 'from', 'to'));
     }
 
     public function projects(Request $request): View
     {
-        $cid = $this->companyId();
+        $cid     = $this->companyId();
+        $company = $this->company();
 
-        $projectsByStatus = Project::where('company_id', $cid)
-            ->selectRaw('status, count(*) as total, sum(estimated_amount) as total_estimated')
+        $statusBreakdown = Project::where('company_id', $cid)
+            ->selectRaw('status, count(*) as total')
             ->groupBy('status')
-            ->get();
-
-        $invoiceSummary = Invoice::where('company_id', $cid)
-            ->selectRaw('sum(total) as invoiced, sum(paid_amount) as collected')
-            ->first();
+            ->pluck('total', 'status');
 
         $projects = Project::where('company_id', $cid)
             ->with(['customer', 'projectType'])
-            ->withSum(['financeEntries as total_received' => fn($q) => $q->where('type', 'credit')], 'amount')
-            ->withSum(['financeEntries as total_expense' => fn($q) => $q->where('type', 'debit')], 'amount')
+            ->withSum('invoices as invoices_sum_total', 'total')
+            ->withSum('invoices as invoices_sum_paid_amount', 'paid_amount')
+            ->withCount('tasks')
             ->latest()
             ->get();
 
-        return view('reports.projects', compact('projectsByStatus', 'invoiceSummary', 'projects'));
+        return view('reports.projects', compact('statusBreakdown', 'projects', 'company'));
     }
 }

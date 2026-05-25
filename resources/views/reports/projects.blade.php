@@ -45,9 +45,9 @@
           <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>
           <td><span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }}</span></td>
           <td style="color:#9ca3af;font-size:0.82rem">{{ $project->start_date ? $project->start_date->format('d M Y') : '—' }}</td>
-          <td style="text-align:right;font-weight:600">{{ $project->budget ? $company->currency_symbol.number_format($project->budget,0) : '—' }}</td>
+          <td style="text-align:right;font-weight:600">{{ $project->estimated_amount ? $company->currency_symbol.number_format($project->estimated_amount,0) : '—' }}</td>
           <td style="text-align:right;color:#6366f1;font-weight:600">{{ $company->currency_symbol }}{{ number_format($project->invoices_sum_total ?? 0, 0) }}</td>
-          <td style="text-align:right;color:#10b981;font-weight:600">{{ $company->currency_symbol }}{{ number_format($project->payments_sum_amount ?? 0, 0) }}</td>
+          <td style="text-align:right;color:#10b981;font-weight:600">{{ $company->currency_symbol }}{{ number_format($project->invoices_sum_paid_amount ?? 0, 0) }}</td>
           <td style="text-align:right;color:#9ca3af">{{ $project->tasks_count ?? 0 }}</td>
         </tr>
         @empty

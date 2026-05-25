@@ -91,10 +91,11 @@ class ProjectController extends Controller
         $profitLoss    = $totalReceived - $totalExpense;
         $customFields  = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->get();
         $customValues  = $project->customFieldValues()->with('customField')->get()->keyBy('custom_field_id');
+        $users         = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
 
         return view('projects.show', compact(
             'project', 'financeEntries', 'totalReceived', 'totalExpense',
-            'profitLoss', 'customFields', 'customValues'
+            'profitLoss', 'customFields', 'customValues', 'users'
         ));
     }
 

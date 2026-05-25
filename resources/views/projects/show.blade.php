@@ -22,8 +22,12 @@
     </div>
   </div>
   <div style="display:flex;gap:8px">
-    <a href="{{ route('projects.edit', $project) }}" class="btn btn-secondary">Edit Project</a>
-    <a href="{{ route('invoices.create') }}?project_id={{ $project->id }}" class="btn btn-primary">Create Invoice</a>
+    <a href="{{ route('projects.edit', $project) }}" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Project
+    </a>
+    <a href="{{ route('invoices.create') }}?project_id={{ $project->id }}" class="btn btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Create Invoice
+    </a>
   </div>
 </div>
 
@@ -83,7 +87,7 @@
     <div style="max-height:280px;overflow-y:auto">
       @forelse($project->tasks->sortBy('status') as $task)
       <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid #f3f4f6">
-        <form method="POST" action="{{ route('projects.tasks.update', [$project, $task]) }}">
+        <form method="POST" action="{{ route('tasks.update', [$project, $task]) }}">
           @csrf @method('PUT')
           <input type="hidden" name="status" value="{{ $task->status === 'completed' ? 'pending' : 'completed' }}">
           <input type="hidden" name="title" value="{{ $task->title }}">
@@ -117,7 +121,9 @@
 <div class="card mb-5">
   <div class="card-header">
     <span style="font-weight:700">Finance Entries</span>
-    <a href="{{ route('projects.finance.create', $project) }}" class="btn btn-secondary btn-sm">+ Entry</a>
+    <a href="{{ route('finance.create', $project) }}" class="btn btn-secondary btn-sm">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Entry
+    </a>
   </div>
   <div class="table-wrapper">
     <table class="table">
@@ -134,10 +140,12 @@
           <td style="color:#10b981;font-weight:600">{{ $entry->type === 'credit' ? $activeCompany->currency_symbol.number_format($entry->amount, 0) : '' }}</td>
           <td style="color:#ef4444;font-weight:600">{{ $entry->type === 'debit' ? $activeCompany->currency_symbol.number_format($entry->amount, 0) : '' }}</td>
           <td>
-            <form method="POST" action="{{ route('projects.finance.destroy', [$project, $entry]) }}"
+            <form method="POST" action="{{ route('finance.destroy', [$project, $entry]) }}"
                   onsubmit="return confirm('Delete this entry?')">
               @csrf @method('DELETE')
-              <button type="submit" class="btn btn-danger btn-xs">Del</button>
+              <button type="submit" class="btn btn-danger btn-xs" title="Delete entry">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
             </form>
           </td>
         </tr>
@@ -186,7 +194,7 @@
 <div id="addTaskModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:28px;width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
     <h3 style="font-size:1.1rem;font-weight:800;color:#1e1b4b;margin-bottom:20px">Add Task</h3>
-    <form method="POST" action="{{ route('projects.tasks.store', $project) }}">
+    <form method="POST" action="{{ route('tasks.store', $project) }}">
       @csrf
       <div style="margin-bottom:14px">
         <label class="form-label">Title <span style="color:#ef4444">*</span></label>

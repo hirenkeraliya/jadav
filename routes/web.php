@@ -58,6 +58,7 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
 
     // Finance
     Route::get('projects/{project}/finance', [FinanceController::class, 'index'])->name('finance.index');
+    Route::get('projects/{project}/finance/create', [FinanceController::class, 'create'])->name('finance.create');
     Route::post('projects/{project}/finance', [FinanceController::class, 'store'])->name('finance.store');
     Route::get('projects/{project}/finance/{entry}/edit', [FinanceController::class, 'edit'])->name('finance.edit');
     Route::put('projects/{project}/finance/{entry}', [FinanceController::class, 'update'])->name('finance.update');
@@ -90,7 +91,7 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
 
     // Settings (super admin or admin role)
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('company', [SettingsController::class, 'company'])->name('company');
+        Route::get('company', [SettingsController::class, 'showCompany'])->name('company');
         Route::put('company', [SettingsController::class, 'updateCompany'])->name('company.update');
 
         Route::get('project-types', [SettingsController::class, 'projectTypes'])->name('project-types');
@@ -127,8 +128,15 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
 
-    // Super-admin only: company management
+    // Super-admin only: company & user management
     Route::middleware('super.admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('companies', CompanyController::class);
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
 });

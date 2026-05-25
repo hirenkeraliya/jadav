@@ -8,6 +8,7 @@
         ['route' => 'settings.finance-entry-types', 'label' => 'Finance Types', 'icon' => 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
         ['route' => 'settings.terms', 'label' => 'Terms Templates', 'icon' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'],
         ['route' => 'settings.custom-fields', 'label' => 'Custom Fields', 'icon' => 'M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'],
+        ['route' => 'settings.users', 'label' => 'Users', 'icon' => 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
       ];
     @endphp
     @foreach($navLinks as $link)

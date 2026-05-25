@@ -86,7 +86,7 @@
         <tr>
           <td><a href="{{ route('quotations.show', $q) }}" style="font-weight:700;color:#6366f1;text-decoration:none">{{ $q->quotation_number }}</a></td>
           <td>{{ $q->customer->name }}</td>
-          <td style="color:#9ca3af;font-size:0.82rem">{{ $q->quotation_date->format('d M Y') }}</td>
+          <td style="color:#9ca3af;font-size:0.82rem">{{ $q->date->format('d M Y') }}</td>
           <td style="font-weight:700">{{ $company->currency_symbol }}{{ number_format($q->total, 2) }}</td>
           <td><span class="badge badge-{{ $q->status }}">{{ ucfirst($q->status) }}</span></td>
         </tr>

@@ -108,12 +108,12 @@
       <tbody>
         @forelse($entries as $e)
         <tr>
-          <td style="white-space:nowrap;color:#9ca3af;font-size:0.82rem">{{ $e->entry_date->format('d M Y') }}</td>
+          <td style="white-space:nowrap;color:#9ca3af;font-size:0.82rem">{{ $e->date->format('d M Y') }}</td>
           <td>{{ $e->project->name ?? '—' }}</td>
-          <td>{{ $e->financeEntryType->name ?? '—' }}</td>
-          <td>{{ $e->description }}</td>
-          <td style="color:#10b981;font-weight:600">{{ $e->direction=='credit' ? $company->currency_symbol.number_format($e->amount,2) : '' }}</td>
-          <td style="color:#ef4444;font-weight:600">{{ $e->direction=='debit' ? $company->currency_symbol.number_format($e->amount,2) : '' }}</td>
+          <td>{{ $e->entryType->name ?? '—' }}</td>
+          <td>{{ $e->remarks }}</td>
+          <td style="color:#10b981;font-weight:600">{{ $e->type=='credit' ? $company->currency_symbol.number_format($e->amount,2) : '' }}</td>
+          <td style="color:#ef4444;font-weight:600">{{ $e->type=='debit' ? $company->currency_symbol.number_format($e->amount,2) : '' }}</td>
         </tr>
         @empty
         <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px">No transactions in selected range.</td></tr>

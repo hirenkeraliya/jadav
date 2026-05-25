@@ -32,6 +32,15 @@ class FinanceController extends Controller
         return view('finance.index', compact('project', 'entries', 'paymentTypes', 'entryTypes', 'totalCredit', 'totalDebit', 'balance'));
     }
 
+    public function create(Project $project): View
+    {
+        $this->authorizeProject($project);
+        $cid = $this->companyId();
+        $paymentTypes = PaymentType::where('company_id', $cid)->where('is_active', true)->get();
+        $entryTypes = FinanceEntryType::where('company_id', $cid)->where('is_active', true)->get();
+        return view('finance.create', compact('project', 'paymentTypes', 'entryTypes'));
+    }
+
     public function store(Request $request, Project $project): RedirectResponse
     {
         $this->authorizeProject($project);
@@ -66,7 +75,7 @@ class FinanceController extends Controller
             }
         }
 
-        return back()->with('success', ucfirst($data['type']) . ' entry added.');
+        return redirect()->route('projects.show', $project)->with('success', ucfirst($data['type']) . ' entry added.');
     }
 
     public function edit(Project $project, FinanceEntry $entry): View

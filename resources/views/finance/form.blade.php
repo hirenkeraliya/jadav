@@ -11,7 +11,7 @@
   <div class="card">
     <div class="card-body">
       <form method="POST"
-            action="{{ isset($entry) ? route('projects.finance.update', [$project, $entry]) : route('projects.finance.store', $project) }}"
+            action="{{ isset($entry) ? route('finance.update', [$project, $entry]) : route('finance.store', $project) }}"
             enctype="multipart/form-data">
         @csrf
         @if(isset($entry)) @method('PUT') @endif

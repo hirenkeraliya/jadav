@@ -16,8 +16,12 @@
     </div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <a href="{{ route('invoices.pdf', $invoice) }}" target="_blank" class="btn btn-secondary">PDF</a>
-    <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-secondary">Edit</a>
+    <a href="{{ route('invoices.pdf', $invoice) }}" target="_blank" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+    </a>
+    <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit
+    </a>
     <form method="POST" action="{{ route('invoices.destroy', $invoice) }}" onsubmit="return confirm('Delete invoice?')">
       @csrf @method('DELETE')
       <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -145,7 +149,7 @@
       @if($invoice->balance_due > 0)
       <div class="card-body" style="border-top:1px solid #ede9fe">
         <div style="font-size:0.78rem;font-weight:700;color:#8b5cf6;margin-bottom:10px">Record Payment</div>
-        <form method="POST" action="{{ route('invoices.payments.add', $invoice) }}">
+        <form method="POST" action="{{ route('invoices.payments.store', $invoice) }}">
           @csrf
           <div style="margin-bottom:10px">
             <input type="number" name="amount" class="form-control" step="0.01" min="0.01"

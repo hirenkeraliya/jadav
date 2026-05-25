@@ -45,15 +45,23 @@
           <td><span class="badge badge-{{ $q->status }}">{{ ucfirst($q->status) }}</span></td>
           <td>
             <div style="display:flex;gap:5px;justify-content:flex-end">
-              <a href="{{ route('quotations.show', $q) }}" class="btn btn-secondary btn-xs">View</a>
+              <a href="{{ route('quotations.show', $q) }}" class="btn btn-secondary btn-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View
+              </a>
               @if(in_array($q->status, ['draft','sent']))
-                <a href="{{ route('quotations.edit', $q) }}" class="btn btn-secondary btn-xs">Edit</a>
+                <a href="{{ route('quotations.edit', $q) }}" class="btn btn-secondary btn-xs">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit
+                </a>
               @endif
-              <a href="{{ route('quotations.pdf', $q) }}" target="_blank" class="btn btn-secondary btn-xs">PDF</a>
+              <a href="{{ route('quotations.pdf', $q) }}" target="_blank" class="btn btn-secondary btn-xs">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+              </a>
               @if(in_array($q->status, ['accepted']))
                 <form method="POST" action="{{ route('quotations.convert', $q) }}">
                   @csrf
-                  <button type="submit" class="btn btn-success btn-xs">→ Project</button>
+                  <button type="submit" class="btn btn-success btn-xs">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Project
+                  </button>
                 </form>
               @endif
             </div>

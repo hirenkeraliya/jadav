@@ -23,7 +23,7 @@
   <div>
     @foreach($projectTasks->sortBy('status') as $task)
     <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #f3f4f6">
-      <form method="POST" action="{{ route('projects.tasks.update', [$task->project, $task]) }}">
+      <form method="POST" action="{{ route('tasks.update', [$task->project, $task]) }}">
         @csrf @method('PUT')
         <input type="hidden" name="status" value="{{ $task->status === 'completed' ? 'pending' : 'completed' }}">
         <input type="hidden" name="title" value="{{ $task->title }}">

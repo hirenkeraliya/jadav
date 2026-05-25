@@ -1,0 +1,168 @@
+@extends('layouts.app')
+@section('title', $quotation->quotation_number)
+@section('breadcrumb')
+  <a href="{{ route('quotations.index') }}" style="color:#8b5cf6;text-decoration:none">Quotations</a> /
+  {{ $quotation->quotation_number }}
+@endsection
+
+@section('content')
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ $quotation->quotation_number }}</h1>
+    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+      <span class="badge badge-{{ $quotation->status }}">{{ ucfirst($quotation->status) }}</span>
+      @if($quotation->version > 1) <span class="badge badge-draft">Revision v{{ $quotation->version }}</span> @endif
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a href="{{ route('quotations.pdf', $quotation) }}" target="_blank" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      PDF
+    </a>
+    @if(in_array($quotation->status, ['draft','sent']))
+      <form method="POST" action="{{ route('quotations.revise', $quotation) }}">
+        @csrf
+        <button type="submit" class="btn btn-secondary">Revise</button>
+      </form>
+      <a href="{{ route('quotations.edit', $quotation) }}" class="btn btn-secondary">Edit</a>
+    @endif
+    @if($quotation->status === 'accepted')
+      <form method="POST" action="{{ route('quotations.convert', $quotation) }}" style="display:flex;gap:6px;align-items:center">
+        @csrf
+        <input type="text" name="project_name" class="form-control form-control-sm" placeholder="Project name (optional)" style="max-width:220px;font-size:0.85rem;padding:7px 12px">
+        <button type="submit" class="btn btn-success">Convert to Project</button>
+      </form>
+    @endif
+    <form method="POST" action="{{ route('quotations.destroy', $quotation) }}" onsubmit="return confirm('Delete this quotation?')">
+      @csrf @method('DELETE')
+      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+  <div>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:4px">Customer</div>
+            <div style="font-weight:700;font-size:1.05rem;color:#1e1b4b">{{ $quotation->customer->name }}</div>
+            @if($quotation->customer->organization) <div style="font-size:0.85rem;color:#6b7280">{{ $quotation->customer->organization }}</div> @endif
+            @if($quotation->customer->email) <div style="font-size:0.85rem;color:#6b7280">{{ $quotation->customer->email }}</div> @endif
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:4px">From</div>
+            <div style="font-weight:700;color:#1e1b4b">{{ $company->name }}</div>
+            <div style="font-size:0.85rem;color:#6b7280">{{ $company->email }}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px">
+          <div><div style="font-size:0.72rem;font-weight:700;color:#8b5cf6">Date</div><div>{{ $quotation->date->format('d M Y') }}</div></div>
+          @if($quotation->valid_until)
+          <div><div style="font-size:0.72rem;font-weight:700;color:#8b5cf6">Valid Until</div><div>{{ $quotation->valid_until->format('d M Y') }}</div></div>
+          @endif
+        </div>
+
+        {{-- Items --}}
+        <table style="width:100%;border-collapse:collapse;font-size:0.875rem;margin-bottom:16px">
+          <thead>
+            <tr style="border-bottom:2px solid #ede9fe">
+              <th style="text-align:left;padding:8px 0;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">#</th>
+              <th style="text-align:left;padding:8px;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">Description</th>
+              <th style="text-align:right;padding:8px;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">Qty</th>
+              <th style="text-align:right;padding:8px;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">Unit</th>
+              <th style="text-align:right;padding:8px;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">Rate</th>
+              <th style="text-align:right;padding:8px 0;color:#8b5cf6;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($quotation->items as $i => $item)
+            <tr style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:10px 0;color:#9ca3af">{{ $i + 1 }}</td>
+              <td style="padding:10px 8px">
+                <div style="font-weight:600;color:#1e1b4b">{{ $item->name }}</div>
+                @if($item->description) <div style="font-size:0.8rem;color:#9ca3af">{{ $item->description }}</div> @endif
+              </td>
+              <td style="text-align:right;padding:10px 8px">{{ $item->qty }}</td>
+              <td style="text-align:right;padding:10px 8px;color:#9ca3af">{{ $item->unit }}</td>
+              <td style="text-align:right;padding:10px 8px">{{ $company->currency_symbol }}{{ number_format($item->unit_rate, 2) }}</td>
+              <td style="text-align:right;padding:10px 0;font-weight:600">{{ $company->currency_symbol }}{{ number_format($item->amount, 2) }}</td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
+
+        {{-- Subtotals --}}
+        <div style="display:flex;justify-content:flex-end">
+          <div style="width:260px">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.875rem">
+              <span style="color:#6b7280">Subtotal</span>
+              <span>{{ $company->currency_symbol }}{{ number_format($quotation->subtotal, 2) }}</span>
+            </div>
+            @if($quotation->discount_value > 0)
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.875rem">
+              <span style="color:#6b7280">Discount{{ $quotation->discount_type === 'percentage' ? ' ('.$quotation->discount_value.'%)' : '' }}</span>
+              <span style="color:#ef4444">-{{ $company->currency_symbol }}{{ number_format($quotation->discount_amount, 2) }}</span>
+            </div>
+            @endif
+            @if($quotation->tax_rate > 0)
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.875rem">
+              <span style="color:#6b7280">{{ $quotation->tax_label ?? 'Tax' }} ({{ $quotation->tax_rate }}%)</span>
+              <span>{{ $company->currency_symbol }}{{ number_format($quotation->tax_amount, 2) }}</span>
+            </div>
+            @endif
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #ede9fe;font-size:1.1rem;font-weight:800;color:#1e1b4b">
+              <span>Total</span>
+              <span style="color:#6366f1">{{ $company->currency_symbol }}{{ number_format($quotation->total, 2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if($quotation->notes)
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f3f4f6">
+          <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:6px">Notes</div>
+          <div style="font-size:0.875rem;color:#6b7280;white-space:pre-wrap">{{ $quotation->notes }}</div>
+        </div>
+        @endif
+
+        @if($quotation->termsTemplate)
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f3f4f6">
+          <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:6px">Terms & Conditions</div>
+          <div style="font-size:0.8rem;color:#6b7280;white-space:pre-wrap">{{ $quotation->termsTemplate->content }}</div>
+        </div>
+        @endif
+      </div>
+    </div>
+  </div>
+
+  {{-- Sidebar --}}
+  <div>
+    @if($quotation->revisions->isNotEmpty() || $quotation->parent_id)
+    <div class="card mb-4">
+      <div class="card-header"><span style="font-weight:700">Revisions</span></div>
+      <div class="card-body" style="padding:12px">
+        @foreach($quotation->revisions as $rev)
+        <a href="{{ route('quotations.show', $rev) }}" style="display:flex;justify-content:space-between;padding:8px 10px;border-radius:8px;text-decoration:none;font-size:0.85rem;color:#4f46e5;{{ $rev->id === $quotation->id ? 'background:#f5f3ff;font-weight:700' : '' }}">
+          <span>{{ $rev->quotation_number }}</span>
+          <span class="badge badge-{{ $rev->status }}" style="font-size:0.68rem">{{ ucfirst($rev->status) }}</span>
+        </a>
+        @endforeach
+      </div>
+    </div>
+    @endif
+
+    @if($quotation->project)
+    <div class="card mb-4">
+      <div class="card-body">
+        <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:8px">Linked Project</div>
+        <a href="{{ route('projects.show', $quotation->project) }}" style="font-weight:700;color:#4f46e5;text-decoration:none">
+          {{ $quotation->project->name }}
+        </a>
+      </div>
+    </div>
+    @endif
+  </div>
+</div>
+@endsection

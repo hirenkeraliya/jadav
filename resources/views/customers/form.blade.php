@@ -1,0 +1,81 @@
+@extends('layouts.app')
+@section('title', isset($customer) ? 'Edit Customer' : 'New Customer')
+@section('breadcrumb')
+  <a href="{{ route('customers.index') }}" style="color:#8b5cf6;text-decoration:none">Customers</a> /
+  {{ isset($customer) ? 'Edit' : 'New' }}
+@endsection
+
+@section('content')
+<div style="max-width:700px">
+  <h1 class="page-title" style="margin-bottom:24px">{{ isset($customer) ? 'Edit Customer' : 'Add Customer' }}</h1>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="POST" action="{{ isset($customer) ? route('customers.update', $customer) : route('customers.store') }}">
+        @csrf
+        @if(isset($customer)) @method('PUT') @endif
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <label class="form-label">Full Name <span style="color:#ef4444">*</span></label>
+            <input type="text" name="name" class="form-control {{ $errors->has('name') ? 'error' : '' }}"
+                   value="{{ old('name', $customer->name ?? '') }}" required>
+            @error('name') <span class="form-error">{{ $message }}</span> @enderror
+          </div>
+          <div>
+            <label class="form-label">Organization</label>
+            <input type="text" name="organization" class="form-control"
+                   value="{{ old('organization', $customer->organization ?? '') }}">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control {{ $errors->has('email') ? 'error' : '' }}"
+                   value="{{ old('email', $customer->email ?? '') }}">
+            @error('email') <span class="form-error">{{ $message }}</span> @enderror
+          </div>
+          <div>
+            <label class="form-label">Mobile</label>
+            <input type="text" name="mobile" class="form-control"
+                   value="{{ old('mobile', $customer->mobile ?? '') }}">
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <label class="form-label">Address</label>
+          <textarea name="address" class="form-control" rows="2">{{ old('address', $customer->address ?? '') }}</textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <label class="form-label">Source</label>
+            <input type="text" name="source" class="form-control" placeholder="Referral, Social Media..."
+                   value="{{ old('source', $customer->source ?? '') }}">
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <option value="active" {{ old('status', $customer->status ?? 'active') == 'active' ? 'selected' : '' }}>Active</option>
+              <option value="inactive" {{ old('status', $customer->status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="3">{{ old('notes', $customer->notes ?? '') }}</textarea>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button type="submit" class="btn btn-primary">
+            {{ isset($customer) ? 'Update Customer' : 'Create Customer' }}
+          </button>
+          <a href="{{ route('customers.index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+@endsection

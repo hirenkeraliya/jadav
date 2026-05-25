@@ -11,7 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'company.selected' => \App\Http\Middleware\EnsureCompanySelected::class,
+            'company.theme'    => \App\Http\Middleware\SetActiveCompanyTheme::class,
+            'super.admin'      => \App\Http\Middleware\SuperAdminOnly::class,
+        ]);
+
+        $middleware->web(append: [
+            \App\Http\Middleware\SetActiveCompanyTheme::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -1,0 +1,193 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\ScopedToCompany;
+use App\Models\Customer;
+use App\Models\CustomField;
+use App\Models\Project;
+use App\Models\ProjectFile;
+use App\Models\ProjectType;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
+class ProjectController extends Controller
+{
+    use ScopedToCompany;
+
+    public function index(Request $request): View
+    {
+        $cid = $this->companyId();
+        $query = Project::where('company_id', $cid)->with(['customer', 'projectType', 'leadBy']);
+
+        if ($s = $request->input('search')) {
+            $query->where(fn($q) => $q->where('name', 'like', "%{$s}%")->orWhere('project_code', 'like', "%{$s}%"));
+        }
+        if ($status = $request->input('status')) $query->where('status', $status);
+        if ($type = $request->input('project_type_id')) $query->where('project_type_id', $type);
+        if ($customer = $request->input('customer_id')) $query->where('customer_id', $customer);
+        if ($lead = $request->input('lead_by')) $query->where('lead_by', $lead);
+
+        $projects = $query->latest()->paginate(15)->withQueryString();
+        $projectTypes = ProjectType::where('company_id', $cid)->where('is_active', true)->get();
+        $customers = Customer::where('company_id', $cid)->where('status', 'active')->get();
+        $users = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
+
+        return view('projects.index', compact('projects', 'projectTypes', 'customers', 'users'));
+    }
+
+    public function create(): View
+    {
+        $cid = $this->companyId();
+        $customers = Customer::where('company_id', $cid)->where('status', 'active')->get();
+        $projectTypes = ProjectType::where('company_id', $cid)->where('is_active', true)->get();
+        $users = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
+        $customFields = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->orderBy('sort_order')->get();
+        return view('projects.create', compact('customers', 'projectTypes', 'users', 'customFields'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $cid = $this->companyId();
+        $data = $request->validate([
+            'name'             => ['required', 'string', 'max:255'],
+            'customer_id'      => ['required', 'exists:customers,id'],
+            'project_type_id'  => ['nullable', 'exists:project_types,id'],
+            'location'         => ['nullable', 'string'],
+            'site_address'     => ['nullable', 'string'],
+            'start_date'       => ['nullable', 'date'],
+            'end_date'         => ['nullable', 'date', 'after_or_equal:start_date'],
+            'lead_by'          => ['nullable', 'exists:users,id'],
+            'scope_of_work'    => ['nullable', 'string'],
+            'estimated_amount' => ['nullable', 'numeric', 'min:0'],
+            'status'           => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'priority'         => ['required', 'in:low,medium,high'],
+            'internal_notes'   => ['nullable', 'string'],
+        ]);
+
+        $project = Project::create(array_merge($data, [
+            'company_id'   => $cid,
+            'project_code' => Project::generateCode($cid),
+        ]));
+
+        // Save custom fields
+        $this->saveCustomFields($request, $project, $cid);
+
+        return redirect()->route('projects.show', $project)->with('success', 'Project created.');
+    }
+
+    public function show(Project $project): View
+    {
+        $this->authorizeCompany($project);
+        $project->load(['customer', 'projectType', 'leadBy', 'files', 'tasks.assignee', 'invoices', 'quotation']);
+
+        $cid = $this->companyId();
+        $financeEntries = $project->financeEntries()->with(['entryType', 'paymentType', 'recorder'])->latest('date')->get();
+        $totalReceived = $financeEntries->where('type', 'credit')->sum('amount');
+        $totalExpense  = $financeEntries->where('type', 'debit')->sum('amount');
+        $profitLoss    = $totalReceived - $totalExpense;
+        $customFields  = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->get();
+        $customValues  = $project->customFieldValues()->with('customField')->get()->keyBy('custom_field_id');
+
+        return view('projects.show', compact(
+            'project', 'financeEntries', 'totalReceived', 'totalExpense',
+            'profitLoss', 'customFields', 'customValues'
+        ));
+    }
+
+    public function edit(Project $project): View
+    {
+        $this->authorizeCompany($project);
+        $cid = $this->companyId();
+        $customers = Customer::where('company_id', $cid)->where('status', 'active')->get();
+        $projectTypes = ProjectType::where('company_id', $cid)->where('is_active', true)->get();
+        $users = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
+        $customFields = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->orderBy('sort_order')->get();
+        $customValues = $project->customFieldValues()->get()->keyBy('custom_field_id');
+        return view('projects.edit', compact('project', 'customers', 'projectTypes', 'users', 'customFields', 'customValues'));
+    }
+
+    public function update(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        $cid = $this->companyId();
+
+        $data = $request->validate([
+            'name'             => ['required', 'string', 'max:255'],
+            'customer_id'      => ['required', 'exists:customers,id'],
+            'project_type_id'  => ['nullable', 'exists:project_types,id'],
+            'location'         => ['nullable', 'string'],
+            'site_address'     => ['nullable', 'string'],
+            'start_date'       => ['nullable', 'date'],
+            'end_date'         => ['nullable', 'date'],
+            'lead_by'          => ['nullable', 'exists:users,id'],
+            'scope_of_work'    => ['nullable', 'string'],
+            'estimated_amount' => ['nullable', 'numeric', 'min:0'],
+            'status'           => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'priority'         => ['required', 'in:low,medium,high'],
+            'internal_notes'   => ['nullable', 'string'],
+        ]);
+
+        $project->update($data);
+        $this->saveCustomFields($request, $project, $cid);
+
+        return redirect()->route('projects.show', $project)->with('success', 'Project updated.');
+    }
+
+    public function destroy(Project $project): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        $project->delete();
+        return redirect()->route('projects.index')->with('success', 'Project deleted.');
+    }
+
+    public function uploadFile(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        $request->validate(['file' => ['required', 'file', 'max:20480'], 'category' => ['nullable', 'string']]);
+
+        $uploaded = $request->file('file');
+        $path = $uploaded->store("projects/{$project->id}/files", 'public');
+
+        ProjectFile::create([
+            'project_id'    => $project->id,
+            'original_name' => $uploaded->getClientOriginalName(),
+            'path'          => $path,
+            'mime_type'     => $uploaded->getMimeType(),
+            'size'          => $uploaded->getSize(),
+            'category'      => $request->input('category'),
+            'uploaded_by'   => auth()->id(),
+        ]);
+
+        return back()->with('success', 'File uploaded.');
+    }
+
+    public function deleteFile(Project $project, ProjectFile $file): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        abort_if($file->project_id !== $project->id, 403);
+        Storage::disk('public')->delete($file->path);
+        $file->delete();
+        return back()->with('success', 'File removed.');
+    }
+
+    private function saveCustomFields(Request $request, Project $project, int $cid): void
+    {
+        $fields = CustomField::where('company_id', $cid)->where('module', 'projects')->get();
+        foreach ($fields as $field) {
+            $value = $request->input('custom_' . $field->field_key);
+            $project->customFieldValues()->updateOrCreate(
+                ['custom_field_id' => $field->id, 'record_type' => Project::class, 'record_id' => $project->id],
+                ['value' => is_array($value) ? json_encode($value) : $value]
+            );
+        }
+    }
+
+    private function authorizeCompany(Project $project): void
+    {
+        abort_if($project->company_id !== $this->companyId(), 403);
+    }
+}

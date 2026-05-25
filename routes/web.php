@@ -12,6 +12,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -131,6 +132,7 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     // Super-admin only: company & user management
     Route::middleware('super.admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('companies', CompanyController::class);
+        Route::resource('roles', RoleController::class);
         Route::get('users', [UserController::class, 'adminIndex'])->name('users.index');
         Route::get('users/create', [UserController::class, 'adminCreate'])->name('users.create');
         Route::post('users', [UserController::class, 'adminStore'])->name('users.store');

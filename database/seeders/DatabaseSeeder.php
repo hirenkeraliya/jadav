@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
+        // Permissions
+        $this->call(PermissionSeeder::class);
+
         // Demo company
         $company = Company::firstOrCreate(
             ['email' => 'demo@studiostudio.com'],

@@ -174,7 +174,7 @@
             <option value="">— No Role —</option>
             @foreach($roles as $role)
               <option value="{{ $role->name }}"
-                {{ old('role', $user->roles->first()?->name ?? '') == $role->name ? 'selected' : '' }}>
+                {{ old('role', isset($user) ? $user->roles->first()?->name ?? '' : '') == $role->name ? 'selected' : '' }}>
                 {{ $role->name }}
               </option>
             @endforeach

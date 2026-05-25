@@ -6,11 +6,31 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Studio') — {{ $activeCompany->name ?? 'Dashboard' }}</title>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
+  @php
+    $p = $primaryColor ?? '#6366f1';
+    $s = $secondaryColor ?? '#f59e0b';
+  @endphp
   <style>
     :root {
-      --color-primary: {{ $primaryColor ?? '#6366f1' }};
-      --color-primary-dark: {{ $primaryColor ?? '#6366f1' }}dd;
-      --color-secondary: {{ $secondaryColor ?? '#f59e0b' }};
+      --color-primary: {{ $p }};
+      --color-secondary: {{ $s }};
+      --color-primary-dark:      color-mix(in srgb, {{ $p }} 82%, #000);
+      --color-primary-light:     color-mix(in srgb, {{ $p }} 65%, #fff);
+      --color-primary-subtle:    color-mix(in srgb, {{ $p }}  8%, #fff);
+      --color-primary-border:    color-mix(in srgb, {{ $p }} 22%, #fff);
+      --color-primary-text-dark: color-mix(in srgb, {{ $p }} 55%, #000);
+    }
+    /* Sidebar — rendered server-side so it always reflects the company color */
+    .sidebar {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, {{ $p }} 25%, #000) 0%,
+        color-mix(in srgb, {{ $p }} 42%, #000) 55%,
+        color-mix(in srgb, {{ $p }} 25%, #000) 100%
+      ) !important;
+    }
+    .nav-item.active::before {
+      background: {{ $s }} !important;
     }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">

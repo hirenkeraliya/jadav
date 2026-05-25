@@ -1,5 +1,5 @@
 <nav style="width:200px;flex-shrink:0">
-  <div style="background:#fff;border:1px solid #ede9fe;border-radius:14px;overflow:hidden">
+  <div style="background:#fff;border:1px solid var(--color-primary-border);border-radius:14px;overflow:hidden">
     @php
       $navLinks = [
         ['route' => 'settings.company', 'label' => 'Company', 'icon' => 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z'],
@@ -13,7 +13,7 @@
     @endphp
     @foreach($navLinks as $link)
     <a href="{{ route($link['route']) }}"
-       style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:0.85rem;font-weight:{{ request()->routeIs($link['route']) ? '700' : '500' }};color:{{ request()->routeIs($link['route']) ? '#6366f1' : '#6b7280' }};text-decoration:none;background:{{ request()->routeIs($link['route']) ? '#f5f3ff' : 'transparent' }};border-bottom:1px solid #f3f4f6">
+       style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:0.85rem;font-weight:{{ request()->routeIs($link['route']) ? '700' : '500' }};color:{{ request()->routeIs($link['route']) ? 'var(--color-primary)' : '#6b7280' }};text-decoration:none;background:{{ request()->routeIs($link['route']) ? 'var(--color-primary-subtle)' : 'transparent' }};border-bottom:1px solid #f3f4f6">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="{{ $link['icon'] }}"/></svg>
       {{ $link['label'] }}
     </a>

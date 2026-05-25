@@ -14,7 +14,7 @@
         <form method="POST" action="{{ route('settings.company.update') }}" enctype="multipart/form-data">
           @csrf @method('PUT')
 
-          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#8b5cf6;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #ede9fe">Company Info</div>
+          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-primary);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--color-primary-border)">Company Info</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
             <div>
               <label class="form-label">Company Name *</label>
@@ -47,7 +47,7 @@
             <input type="file" name="logo" accept="image/*" class="form-control">
           </div>
 
-          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#8b5cf6;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #ede9fe">Branding</div>
+          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-primary);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--color-primary-border)">Branding</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
             <div>
               <label class="form-label">Primary Color</label>
@@ -65,7 +65,7 @@
             </div>
           </div>
 
-          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#8b5cf6;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #ede9fe">Finance</div>
+          <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-primary);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--color-primary-border)">Finance</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
             <div>
               <label class="form-label">Currency</label>

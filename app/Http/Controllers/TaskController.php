@@ -31,7 +31,7 @@ class TaskController extends Controller
             ->with(['project'])
             ->orderBy('due_date')
             ->get();
-        return view('tasks.mine', compact('tasks'));
+        return view('tasks.my', compact('tasks'));
     }
 
     public function store(Request $request, Project $project): RedirectResponse

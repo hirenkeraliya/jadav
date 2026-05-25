@@ -19,7 +19,11 @@ class CompanySelectController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'Your account is not assigned to any company.']);
         }
 
-        return view('auth.company-select', compact('companies'));
+        $defaultCompanyId = $user->active_company_id
+            ?? $user->companies()->wherePivot('is_default', true)->value('companies.id')
+            ?? $companies->first()?->id;
+
+        return view('auth.company-select', compact('companies', 'defaultCompanyId'));
     }
 
     public function select(Request $request): RedirectResponse

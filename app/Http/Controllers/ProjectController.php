@@ -21,7 +21,10 @@ class ProjectController extends Controller
     public function index(Request $request): View
     {
         $cid = $this->companyId();
-        $query = Project::where('company_id', $cid)->with(['customer', 'projectType', 'leadBy']);
+        $query = Project::where('company_id', $cid)
+            ->with(['customer', 'projectType', 'leadBy'])
+            ->withSum(['financeEntries as total_received' => fn($q) => $q->where('type', 'credit')], 'amount')
+            ->withSum(['financeEntries as total_expense' => fn($q) => $q->where('type', 'debit')], 'amount');
 
         if ($s = $request->input('search')) {
             $query->where(fn($q) => $q->where('name', 'like', "%{$s}%")->orWhere('project_code', 'like', "%{$s}%"));

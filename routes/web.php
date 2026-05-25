@@ -131,12 +131,12 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     // Super-admin only: company & user management
     Route::middleware('super.admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('companies', CompanyController::class);
-        Route::get('users', [UserController::class, 'index'])->name('users.index');
-        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-        Route::post('users', [UserController::class, 'store'])->name('users.store');
-        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('users', [UserController::class, 'adminIndex'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'adminCreate'])->name('users.create');
+        Route::post('users', [UserController::class, 'adminStore'])->name('users.store');
+        Route::get('users/{user}/edit', [UserController::class, 'adminEdit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'adminUpdate'])->name('users.update');
+        Route::delete('users/{user}', [UserController::class, 'adminDestroy'])->name('users.destroy');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
 });

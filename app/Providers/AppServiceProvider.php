@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('*', function ($view) {
+            if (auth()->check()) {
+                $activeCompany = auth()->user()->activeCompany;
+                $view->with([
+                    'activeCompany'  => $activeCompany,
+                    'primaryColor'   => $activeCompany->primary_color ?? '#6366f1',
+                    'secondaryColor' => $activeCompany->secondary_color ?? '#f59e0b',
+                ]);
+            }
+        });
     }
 }

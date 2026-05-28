@@ -69,16 +69,39 @@
       </thead>
       <tbody>
         @forelse($projects as $project)
-        <tr>
+        @php
+          $isClosed  = in_array($project->status, ['completed', 'cancelled', 'invoiced']);
+          $isActive  = !$isClosed;
+          $today     = now()->startOfDay();
+          $start     = $project->start_date;
+          $end       = $project->end_date;
+          $totalDays = ($start && $end) ? (int) $start->diffInDays($end) : null;
+          $remaining = $end ? (int) $today->diffInDays($end, false) : null;
+          $received  = (float) ($project->total_received ?? 0);
+          $expense   = (float) ($project->total_expense ?? 0);
+          $pl        = $received - $expense;
+        @endphp
+        <tr style="{{ $isClosed ? 'opacity:0.45;' : '' }}">
+
+          {{-- Project code + name --}}
           <td>
-            <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:0.95rem;font-weight:800;letter-spacing:0.05em;padding:3px 10px;border-radius:6px;margin-bottom:5px">{{ $project->project_code }}</span>
-            <div><a href="{{ route('projects.show', $project) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $project->name }}</a></div>
+            @if($isClosed)
+              <span style="display:inline-block;background:#f3f4f6;color:#9ca3af;font-size:0.95rem;font-weight:800;letter-spacing:0.05em;padding:3px 10px;border-radius:6px;margin-bottom:5px">{{ $project->project_code }}</span>
+              <div><a href="{{ route('projects.show', $project) }}" style="font-weight:600;color:#9ca3af;text-decoration:none">{{ $project->name }}</a></div>
+            @else
+              <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:0.95rem;font-weight:800;letter-spacing:0.05em;padding:3px 10px;border-radius:6px;margin-bottom:5px">{{ $project->project_code }}</span>
+              <div><a href="{{ route('projects.show', $project) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $project->name }}</a></div>
+            @endif
           </td>
-          <td>{{ $project->customer->name ?? '—' }}</td>
+
+          {{-- Customer --}}
+          <td style="color:{{ $isClosed ? '#9ca3af' : 'inherit' }}">{{ $project->customer->name ?? '—' }}</td>
+
+          {{-- Project Types --}}
           <td>
             @foreach($project->projectTypes as $pt)
-              <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;white-space:nowrap;background:#f3f4f6;padding:2px 7px;border-radius:20px;margin-bottom:2px">
-                <span style="width:7px;height:7px;border-radius:50%;background:{{ $pt->color }}"></span>
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;white-space:nowrap;background:#f3f4f6;padding:2px 7px;border-radius:20px;margin-bottom:2px;color:#9ca3af">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ $isClosed ? '#d1d5db' : $pt->color }}"></span>
                 {{ $pt->name }}
               </span><br>
             @endforeach
@@ -86,44 +109,44 @@
               <span style="color:#9ca3af">—</span>
             @endif
           </td>
-          <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>
-          <td><span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }}</span></td>
-          @php
-            $isActive  = !in_array($project->status, ['completed', 'cancelled', 'invoiced']);
-            $today     = now()->startOfDay();
-            $start     = $project->start_date;
-            $end       = $project->end_date;
-            $totalDays = ($start && $end) ? (int) $start->diffInDays($end) : null;
-            $remaining = $end ? (int) $today->diffInDays($end, false) : null;
-          @endphp
+
+          {{-- Status --}}
+          <td>
+            @if($isClosed)
+              <span style="font-size:0.8rem;color:#9ca3af">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span>
+            @else
+              <span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span>
+            @endif
+          </td>
+
+          {{-- Priority — hidden for closed --}}
+          <td>
+            @if($isActive)
+              <span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }}</span>
+            @else
+              <span style="color:#d1d5db">—</span>
+            @endif
+          </td>
 
           {{-- Start Date --}}
-          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
+          <td style="font-size:0.85rem;white-space:nowrap;color:#9ca3af">
             {{ $start ? $start->format('d M Y') : '—' }}
           </td>
 
           {{-- End Date --}}
-          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
+          <td style="font-size:0.85rem;white-space:nowrap;color:#9ca3af">
             {{ $end ? $end->format('d M Y') : '—' }}
           </td>
 
           {{-- Duration --}}
-          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
-            @if($totalDays !== null)
-              {{ $totalDays }} day{{ $totalDays !== 1 ? 's' : '' }}
-            @else
-              —
-            @endif
+          <td style="font-size:0.85rem;white-space:nowrap;color:#9ca3af">
+            {{ $totalDays !== null ? $totalDays.' day'.($totalDays !== 1 ? 's' : '') : '—' }}
           </td>
 
-          {{-- Deadline --}}
+          {{-- Deadline — only meaningful for active projects --}}
           <td style="white-space:nowrap">
-            @if(!$end)
-              <span style="color:#9ca3af;font-size:0.85rem">—</span>
-            @elseif(!$isActive)
-              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#f3f4f6;color:#6b7280">
-                Closed
-              </span>
+            @if($isClosed || !$end)
+              <span style="color:#d1d5db;font-size:0.85rem">—</span>
             @elseif($remaining < 0)
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#fee2e2;color:#991b1b">
                 {{ abs($remaining) }}d overdue
@@ -146,19 +169,16 @@
               </span>
             @endif
           </td>
-          @php
-            $received = (float) ($project->total_received ?? 0);
-            $expense  = (float) ($project->total_expense ?? 0);
-            $pl       = $received - $expense;
-          @endphp
-          <td style="text-align:right;font-size:0.85rem;color:#10b981;font-weight:600;white-space:nowrap">
+
+          {{-- Financials --}}
+          <td style="text-align:right;font-size:0.85rem;color:{{ $isClosed ? '#9ca3af' : '#10b981' }};font-weight:600;white-space:nowrap">
             {{ $activeCompany->currency_symbol }}{{ number_format($received, 0) }}
           </td>
-          <td style="text-align:right;font-size:0.85rem;color:#ef4444;font-weight:600;white-space:nowrap">
+          <td style="text-align:right;font-size:0.85rem;color:{{ $isClosed ? '#9ca3af' : '#ef4444' }};font-weight:600;white-space:nowrap">
             {{ $activeCompany->currency_symbol }}{{ number_format($expense, 0) }}
           </td>
-          <td style="text-align:right;font-size:0.85rem;font-weight:700;white-space:nowrap;{{ $pl >= 0 ? 'color:#10b981' : 'color:#ef4444' }}">
-            {{ $pl >= 0 ? '+' : '' }}{{ $activeCompany->currency_symbol }}{{ number_format($pl, 0) }}
+          <td style="text-align:right;font-size:0.85rem;font-weight:700;white-space:nowrap;color:{{ $isClosed ? '#9ca3af' : ($pl >= 0 ? '#10b981' : '#ef4444') }}">
+            {{ $isClosed ? '' : ($pl >= 0 ? '+' : '') }}{{ $activeCompany->currency_symbol }}{{ number_format($pl, 0) }}
           </td>
           <td>
             <div style="display:flex;gap:6px;justify-content:flex-end">

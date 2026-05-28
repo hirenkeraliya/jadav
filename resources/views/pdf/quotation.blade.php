@@ -66,8 +66,8 @@
     <div class="doc-title" style="text-align:right">
       <h1>Quotation</h1>
       <div class="doc-number">{{ $quotation->quotation_number }}</div>
-      @if($quotation->revision > 0) <div class="doc-meta">Revision: {{ $quotation->revision }}</div> @endif
-      <div class="doc-meta">Date: {{ $quotation->quotation_date->format('d M Y') }}</div>
+      @if($quotation->version > 0) <div class="doc-meta">Revision: {{ $quotation->version }}</div> @endif
+      <div class="doc-meta">Date: {{ $quotation->date?->format('d M Y') ?? '—' }}</div>
       @if($quotation->valid_until) <div class="doc-meta">Valid Until: {{ $quotation->valid_until->format('d M Y') }}</div> @endif
       <div style="margin-top:6px">
         <span class="status-badge status-{{ $quotation->status }}">{{ ucfirst($quotation->status) }}</span>
@@ -164,6 +164,12 @@
   {{-- Signature --}}
   <div class="signature-area">
     <div class="signature-box">Authorized Signature<br><br><br>{{ $company->name }}</div>
+    @if($company->qr_code)
+    <div style="text-align:center">
+      <img src="{{ public_path('storage/'.$company->qr_code) }}" alt="QR Code" style="width:70px;height:70px;object-fit:contain">
+      <div style="font-size:8px;color:#9ca3af;margin-top:3px">Scan to Pay</div>
+    </div>
+    @endif
     <div class="signature-box">Client Acceptance<br><br><br>{{ $quotation->customer->name }}</div>
   </div>
 

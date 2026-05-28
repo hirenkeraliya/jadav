@@ -33,6 +33,8 @@ class SettingsController extends Controller
             'phone'            => ['nullable', 'string'],
             'address'          => ['nullable', 'string'],
             'logo'             => ['nullable', 'image', 'max:2048'],
+            'qr_code'          => ['nullable', 'image', 'max:2048'],
+            'remove_qr_code'   => ['nullable', 'boolean'],
             'primary_color'    => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'secondary_color'  => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'currency'         => ['required', 'string', 'max:10'],
@@ -50,6 +52,15 @@ class SettingsController extends Controller
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
+        if ($request->hasFile('qr_code')) {
+            if ($company->qr_code) Storage::disk('public')->delete($company->qr_code);
+            $data['qr_code'] = $request->file('qr_code')->store('qr-codes', 'public');
+        } elseif ($request->boolean('remove_qr_code')) {
+            if ($company->qr_code) Storage::disk('public')->delete($company->qr_code);
+            $data['qr_code'] = null;
+        }
+
+        unset($data['remove_qr_code']);
         $company->update($data);
         return back()->with('success', 'Company settings updated.');
     }

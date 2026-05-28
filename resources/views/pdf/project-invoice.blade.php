@@ -149,9 +149,22 @@
   <div class="notes-box">{{ $completion->notes }}</div>
   @endif
 
+  {{-- QR Code + Footer --}}
+  @if($company->qr_code)
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e5e7eb;padding-top:12px;margin-top:20px">
+    <div style="font-size:9px;color:#9ca3af">
+      {{ $company->name }} · {{ $completion->invoice_number }} · Generated {{ now()->format('d M Y') }}
+    </div>
+    <div style="text-align:center">
+      <img src="{{ public_path('storage/'.$company->qr_code) }}" alt="QR Code" style="width:70px;height:70px;object-fit:contain">
+      <div style="font-size:8px;color:#9ca3af;margin-top:3px">Scan to Pay</div>
+    </div>
+  </div>
+  @else
   <div class="footer">
     {{ $company->name }} · {{ $completion->invoice_number }} · Generated {{ now()->format('d M Y') }}
   </div>
+  @endif
 
 </div>
 </body>

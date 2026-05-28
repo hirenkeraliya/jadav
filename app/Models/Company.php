@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Company extends Model
 {
     protected $fillable = [
-        'name', 'email', 'phone', 'address', 'logo',
+        'name', 'email', 'phone', 'address', 'logo', 'qr_code',
         'primary_color', 'secondary_color', 'currency', 'currency_symbol',
         'tax_label', 'tax_number', 'website',
         'invoice_prefix', 'quotation_prefix', 'financial_year_start', 'is_active',
@@ -73,5 +73,10 @@ class Company extends Model
     public function getLogoUrlAttribute(): ?string
     {
         return $this->logo ? asset('storage/' . $this->logo) : null;
+    }
+
+    public function getQrCodeUrlAttribute(): ?string
+    {
+        return $this->qr_code ? asset('storage/' . $this->qr_code) : null;
     }
 }

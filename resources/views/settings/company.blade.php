@@ -220,6 +220,39 @@
           <p style="font-size:0.75rem;color:#9ca3af;margin:6px 0 0">PNG, JPG or SVG · Max 2 MB</p>
         </div>
 
+        {{-- QR Code --}}
+        <div class="form-section">
+          <div class="form-section-label">
+            <span class="form-section-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+            </span>
+            QR Code
+          </div>
+          <p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px">Upload a QR code (e.g. payment / bank details) to be printed on invoices and quotations.</p>
+          @if($company->qr_code)
+          <div class="logo-preview-box" style="margin-bottom:12px">
+            <img src="{{ $company->getQrCodeUrlAttribute() }}" alt="QR Code" style="max-height:80px;max-width:80px;object-fit:contain">
+            <div>
+              <div style="font-size:0.82rem;font-weight:600;color:#374151">Current QR Code</div>
+              <div style="font-size:0.75rem;color:#9ca3af;margin-top:2px">Upload a new file to replace it, or remove it below</div>
+            </div>
+          </div>
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;color:#ef4444;cursor:pointer;margin-bottom:12px">
+            <input type="checkbox" name="remove_qr_code" value="1" style="accent-color:#ef4444">
+            Remove current QR code
+          </label>
+          @else
+          <div class="logo-preview-box" style="margin-bottom:12px">
+            <div class="logo-placeholder">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div style="font-size:0.82rem;color:#9ca3af">No QR code uploaded yet</div>
+          </div>
+          @endif
+          <input type="file" name="qr_code" accept="image/*" class="form-control" style="max-width:360px">
+          <p style="font-size:0.75rem;color:#9ca3af;margin:6px 0 0">PNG or JPG · Max 2 MB · Recommended: square image (e.g. 400×400)</p>
+        </div>
+
         {{-- Branding --}}
         <div class="form-section">
           <div class="form-section-label">

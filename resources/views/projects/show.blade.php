@@ -124,7 +124,7 @@
     <div class="card-body">
       <dl style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:0.875rem;align-items:start">
 
-        <dt style="color:#8b5cf6;font-weight:600;white-space:nowrap"Client</dt>
+        <dt style="color:#8b5cf6;font-weight:600;white-space:nowrap">Client</dt>
         <dd>
           @if($project->customer)
             <a href="{{ route('customers.show', $project->customer) }}" style="color:#4f46e5;text-decoration:none;font-weight:500">
@@ -166,13 +166,6 @@
 
       </dl>
 
-      @if($project->scope_of_work)
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f3f4f6">
-        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:6px">Scope of Work</div>
-        <div style="font-size:0.875rem;color:#374151;white-space:pre-wrap">{{ $project->scope_of_work }}</div>
-      </div>
-      @endif
-
       @if($project->internal_notes)
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f3f4f6">
         <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#f59e0b;margin-bottom:6px">Internal Notes</div>
@@ -182,14 +175,207 @@
     </div>
   </div>
 
-  {{-- Tasks --}}
+  {{-- Scope of Work --}}
   <div class="card">
-    <div class="card-header">
-      <span style="font-weight:700">Tasks ({{ $project->tasks->count() }})</span>
-      <button onclick="document.getElementById('addTaskModal').style.display='flex'" class="btn btn-secondary btn-sm">+ Task</button>
+    <div class="card-header"><span style="font-weight:700">Scope of Work</span></div>
+    <div class="card-body">
+      @if($project->scope_of_work)
+        <div style="font-size:0.875rem;color:#374151;white-space:pre-wrap;line-height:1.6">{{ $project->scope_of_work }}</div>
+      @else
+        <div style="text-align:center;color:#9ca3af;font-size:0.85rem;padding:20px 0">
+          No scope of work defined.
+          @can('projects.edit')
+            <a href="{{ route('projects.edit', $project) }}" style="color:var(--color-primary);text-decoration:none">Add it</a>
+          @endcan
+        </div>
+      @endif
     </div>
-    <div style="max-height:340px;overflow-y:auto">
-      @forelse($project->tasks->sortBy('status') as $task)
+  </div>
+</div>
+
+{{-- Extra / Less Work (variations) — 3rd box --}}
+@if(auth()->user()->can('variations.view'))
+@php
+  $extraTotal = $project->variations->where('type', 'extra')->where('status', 'approved')->sum('amount');
+  $lessTotal  = $project->variations->where('type', 'less')->where('status', 'approved')->sum('amount');
+  $netVariation = $extraTotal - $lessTotal;
+@endphp
+<div class="card mb-5" x-data="{ showForm: false, editId: null }">
+  <div class="card-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-weight:700">Extra / Less Work ({{ $project->variations->count() }})</span>
+      @if($netVariation != 0)
+        <span style="font-size:0.8rem;font-weight:600;color:{{ $netVariation > 0 ? '#10b981' : '#ef4444' }}">
+          Net: {{ $netVariation > 0 ? '+' : '' }}{{ $activeCompany->currency_symbol }}{{ number_format($netVariation, 0) }}
+        </span>
+      @endif
+    </div>
+    @can('variations.create')
+    <button type="button" @click="showForm = !showForm" class="btn btn-secondary btn-sm">
+      + Add Variation
+    </button>
+    @endcan
+  </div>
+
+  {{-- Add form --}}
+  @can('variations.create')
+  <div x-show="showForm" x-cloak style="padding:16px 20px;border-bottom:1px solid #f3f4f6;background:#fafafa">
+    <form method="POST" action="{{ route('variations.store', $project) }}">
+      @csrf
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
+        <div>
+          <label class="form-label">Type</label>
+          <select name="type" class="form-control" required>
+            <option value="extra">Extra Work</option>
+            <option value="less">Less Work</option>
+          </select>
+        </div>
+        <div style="grid-column:span 2">
+          <label class="form-label">Description <span style="color:#ef4444">*</span></label>
+          <input type="text" name="description" class="form-control" required placeholder="Describe the variation…">
+        </div>
+        <div>
+          <label class="form-label">Amount</label>
+          <input type="number" name="amount" class="form-control" step="0.01" min="0" required placeholder="0.00">
+        </div>
+        <div>
+          <label class="form-label">Date</label>
+          <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+        </div>
+        <div>
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control">
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div style="grid-column:span 4">
+          <label class="form-label">Notes</label>
+          <input type="text" name="notes" class="form-control" placeholder="Optional notes…">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="submit" class="btn btn-primary btn-sm">Save</button>
+          <button type="button" @click="showForm = false" class="btn btn-secondary btn-sm">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  @endcan
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr><th>Date</th><th>Type</th><th>Description</th><th>Status</th><th style="text-align:right">Amount</th><th>By</th><th></th></tr>
+      </thead>
+      <tbody>
+        @forelse($project->variations as $var)
+        <tr>
+          <td style="font-size:0.85rem;white-space:nowrap">{{ $var->date->format('d M Y') }}</td>
+          <td>
+            <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;
+              {{ $var->type === 'extra' ? 'background:#d1fae5;color:#065f46' : 'background:#fee2e2;color:#991b1b' }}">
+              {{ $var->type === 'extra' ? 'Extra Work' : 'Less Work' }}
+            </span>
+          </td>
+          <td>
+            <div style="font-size:0.875rem">{{ $var->description }}</div>
+            @if($var->notes)<div style="font-size:0.75rem;color:#9ca3af">{{ $var->notes }}</div>@endif
+          </td>
+          <td>
+            <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;
+              {{ $var->status === 'approved' ? 'background:#d1fae5;color:#065f46' : ($var->status === 'rejected' ? 'background:#fee2e2;color:#991b1b' : 'background:#fef3c7;color:#92400e') }}">
+              {{ ucfirst($var->status) }}
+            </span>
+          </td>
+          <td style="text-align:right;font-weight:600;{{ $var->type === 'extra' ? 'color:#10b981' : 'color:#ef4444' }}">
+            {{ $var->type === 'less' ? '-' : '+' }}{{ $activeCompany->currency_symbol }}{{ number_format($var->amount, 0) }}
+          </td>
+          <td style="font-size:0.78rem;color:#9ca3af">{{ $var->recorder?->name ?? '—' }}</td>
+          <td>
+            <div style="display:flex;gap:5px;justify-content:flex-end">
+              @can('variations.edit')
+              <button type="button"
+                      onclick="document.getElementById('editVariation{{ $var->id }}').style.display='flex'"
+                      class="btn btn-secondary btn-xs" title="Edit">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              @endcan
+              @can('variations.delete')
+              <form method="POST" action="{{ route('variations.destroy', [$project, $var]) }}" onsubmit="return confirm('Delete this variation?')">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-xs" title="Delete">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+              </form>
+              @endcan
+            </div>
+          </td>
+        </tr>
+        {{-- Inline edit row --}}
+        @can('variations.edit')
+        <tr id="editVariation{{ $var->id }}" style="display:none;background:#fafafa">
+          <td colspan="7" style="padding:12px 16px">
+            <form method="POST" action="{{ route('variations.update', [$project, $var]) }}">
+              @csrf @method('PUT')
+              <div style="display:grid;grid-template-columns:1fr 1fr 2fr 1fr 1fr auto;gap:10px;align-items:end">
+                <div>
+                  <label class="form-label">Type</label>
+                  <select name="type" class="form-control" required>
+                    <option value="extra" {{ $var->type === 'extra' ? 'selected' : '' }}>Extra Work</option>
+                    <option value="less"  {{ $var->type === 'less'  ? 'selected' : '' }}>Less Work</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Date</label>
+                  <input type="date" name="date" class="form-control" value="{{ $var->date->format('Y-m-d') }}" required>
+                </div>
+                <div>
+                  <label class="form-label">Description</label>
+                  <input type="text" name="description" class="form-control" value="{{ $var->description }}" required>
+                </div>
+                <div>
+                  <label class="form-label">Amount</label>
+                  <input type="number" name="amount" class="form-control" step="0.01" min="0" value="{{ $var->amount }}" required>
+                </div>
+                <div>
+                  <label class="form-label">Status</label>
+                  <select name="status" class="form-control">
+                    <option value="pending"  {{ $var->status === 'pending'  ? 'selected' : '' }}>Pending</option>
+                    <option value="approved" {{ $var->status === 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="rejected" {{ $var->status === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                  </select>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                  <button type="button" onclick="document.getElementById('editVariation{{ $var->id }}').style.display='none'" class="btn btn-secondary btn-sm">Cancel</button>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <label class="form-label">Notes</label>
+                <input type="text" name="notes" class="form-control" value="{{ $var->notes }}" placeholder="Optional notes…">
+              </div>
+            </form>
+          </td>
+        </tr>
+        @endcan
+        @empty
+        <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:20px">No variations recorded yet.</td></tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+</div>
+@endif
+
+{{-- Tasks --}}
+<div class="card mb-5">
+  <div class="card-header">
+    <span style="font-weight:700">Tasks ({{ $project->tasks->count() }})</span>
+    <button onclick="document.getElementById('addTaskModal').style.display='flex'" class="btn btn-secondary btn-sm">+ Task</button>
+  </div>
+  <div style="max-height:340px;overflow-y:auto">
+    @forelse($project->tasks->sortBy('status') as $task)
       <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid #f3f4f6">
         <form method="POST" action="{{ route('tasks.update', [$project, $task]) }}">
           @csrf @method('PUT')
@@ -218,7 +404,6 @@
       <div style="text-align:center;color:#9ca3af;padding:20px;font-size:0.85rem">No tasks yet.</div>
       @endforelse
     </div>
-  </div>
 </div>
 
 {{-- Custom Fields --}}
@@ -425,181 +610,6 @@
     {{ $c->notes }}
   </div>
   @endif
-</div>
-@endif
-
-{{-- Variations (Extra / Less Work) --}}
-@if(auth()->user()->can('variations.view'))
-@php
-  $extraTotal = $project->variations->where('type', 'extra')->where('status', 'approved')->sum('amount');
-  $lessTotal  = $project->variations->where('type', 'less')->where('status', 'approved')->sum('amount');
-  $netVariation = $extraTotal - $lessTotal;
-@endphp
-<div class="card mb-5" x-data="{ showForm: false, editId: null }">
-  <div class="card-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-weight:700">Extra / Less Work ({{ $project->variations->count() }})</span>
-      @if($netVariation != 0)
-        <span style="font-size:0.8rem;font-weight:600;color:{{ $netVariation > 0 ? '#10b981' : '#ef4444' }}">
-          Net: {{ $netVariation > 0 ? '+' : '' }}{{ $activeCompany->currency_symbol }}{{ number_format($netVariation, 0) }}
-        </span>
-      @endif
-    </div>
-    @can('variations.create')
-    <button type="button" @click="showForm = !showForm" class="btn btn-secondary btn-sm">
-      + Add Variation
-    </button>
-    @endcan
-  </div>
-
-  {{-- Add form --}}
-  @can('variations.create')
-  <div x-show="showForm" x-cloak style="padding:16px 20px;border-bottom:1px solid #f3f4f6;background:#fafafa">
-    <form method="POST" action="{{ route('variations.store', $project) }}">
-      @csrf
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
-        <div>
-          <label class="form-label">Type</label>
-          <select name="type" class="form-control" required>
-            <option value="extra">Extra Work</option>
-            <option value="less">Less Work</option>
-          </select>
-        </div>
-        <div style="grid-column:span 2">
-          <label class="form-label">Description <span style="color:#ef4444">*</span></label>
-          <input type="text" name="description" class="form-control" required placeholder="Describe the variation…">
-        </div>
-        <div>
-          <label class="form-label">Amount</label>
-          <input type="number" name="amount" class="form-control" step="0.01" min="0" required placeholder="0.00">
-        </div>
-        <div>
-          <label class="form-label">Date</label>
-          <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
-        </div>
-        <div>
-          <label class="form-label">Status</label>
-          <select name="status" class="form-control">
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-        <div style="grid-column:span 4">
-          <label class="form-label">Notes</label>
-          <input type="text" name="notes" class="form-control" placeholder="Optional notes…">
-        </div>
-        <div style="display:flex;gap:8px">
-          <button type="submit" class="btn btn-primary btn-sm">Save</button>
-          <button type="button" @click="showForm = false" class="btn btn-secondary btn-sm">Cancel</button>
-        </div>
-      </div>
-    </form>
-  </div>
-  @endcan
-
-  <div class="table-wrapper">
-    <table class="table">
-      <thead>
-        <tr><th>Date</th><th>Type</th><th>Description</th><th>Status</th><th style="text-align:right">Amount</th><th>By</th><th></th></tr>
-      </thead>
-      <tbody>
-        @forelse($project->variations as $var)
-        <tr>
-          <td style="font-size:0.85rem;white-space:nowrap">{{ $var->date->format('d M Y') }}</td>
-          <td>
-            <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;
-              {{ $var->type === 'extra' ? 'background:#d1fae5;color:#065f46' : 'background:#fee2e2;color:#991b1b' }}">
-              {{ $var->type === 'extra' ? 'Extra Work' : 'Less Work' }}
-            </span>
-          </td>
-          <td>
-            <div style="font-size:0.875rem">{{ $var->description }}</div>
-            @if($var->notes)<div style="font-size:0.75rem;color:#9ca3af">{{ $var->notes }}</div>@endif
-          </td>
-          <td>
-            <span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;
-              {{ $var->status === 'approved' ? 'background:#d1fae5;color:#065f46' : ($var->status === 'rejected' ? 'background:#fee2e2;color:#991b1b' : 'background:#fef3c7;color:#92400e') }}">
-              {{ ucfirst($var->status) }}
-            </span>
-          </td>
-          <td style="text-align:right;font-weight:600;{{ $var->type === 'extra' ? 'color:#10b981' : 'color:#ef4444' }}">
-            {{ $var->type === 'less' ? '-' : '+' }}{{ $activeCompany->currency_symbol }}{{ number_format($var->amount, 0) }}
-          </td>
-          <td style="font-size:0.78rem;color:#9ca3af">{{ $var->recorder?->name ?? '—' }}</td>
-          <td>
-            <div style="display:flex;gap:5px;justify-content:flex-end">
-              @can('variations.edit')
-              <button type="button"
-                      onclick="document.getElementById('editVariation{{ $var->id }}').style.display='flex'"
-                      class="btn btn-secondary btn-xs" title="Edit">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              </button>
-              @endcan
-              @can('variations.delete')
-              <form method="POST" action="{{ route('variations.destroy', [$project, $var]) }}" onsubmit="return confirm('Delete this variation?')">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-xs" title="Delete">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                </button>
-              </form>
-              @endcan
-            </div>
-          </td>
-        </tr>
-        {{-- Inline edit row --}}
-        @can('variations.edit')
-        <tr id="editVariation{{ $var->id }}" style="display:none;background:#fafafa">
-          <td colspan="7" style="padding:12px 16px">
-            <form method="POST" action="{{ route('variations.update', [$project, $var]) }}">
-              @csrf @method('PUT')
-              <div style="display:grid;grid-template-columns:1fr 1fr 2fr 1fr 1fr auto;gap:10px;align-items:end">
-                <div>
-                  <label class="form-label">Type</label>
-                  <select name="type" class="form-control" required>
-                    <option value="extra" {{ $var->type === 'extra' ? 'selected' : '' }}>Extra Work</option>
-                    <option value="less"  {{ $var->type === 'less'  ? 'selected' : '' }}>Less Work</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="form-label">Date</label>
-                  <input type="date" name="date" class="form-control" value="{{ $var->date->format('Y-m-d') }}" required>
-                </div>
-                <div>
-                  <label class="form-label">Description</label>
-                  <input type="text" name="description" class="form-control" value="{{ $var->description }}" required>
-                </div>
-                <div>
-                  <label class="form-label">Amount</label>
-                  <input type="number" name="amount" class="form-control" step="0.01" min="0" value="{{ $var->amount }}" required>
-                </div>
-                <div>
-                  <label class="form-label">Status</label>
-                  <select name="status" class="form-control">
-                    <option value="pending"  {{ $var->status === 'pending'  ? 'selected' : '' }}>Pending</option>
-                    <option value="approved" {{ $var->status === 'approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="rejected" {{ $var->status === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                  </select>
-                </div>
-                <div style="display:flex;gap:8px">
-                  <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                  <button type="button" onclick="document.getElementById('editVariation{{ $var->id }}').style.display='none'" class="btn btn-secondary btn-sm">Cancel</button>
-                </div>
-              </div>
-              <div style="margin-top:8px">
-                <label class="form-label">Notes</label>
-                <input type="text" name="notes" class="form-control" value="{{ $var->notes }}" placeholder="Optional notes…">
-              </div>
-            </form>
-          </td>
-        </tr>
-        @endcan
-        @empty
-        <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:20px">No variations recorded yet.</td></tr>
-        @endforelse
-      </tbody>
-    </table>
-  </div>
 </div>
 @endif
 

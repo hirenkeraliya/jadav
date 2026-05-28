@@ -12,7 +12,9 @@
     <div class="card-body">
       <form method="POST"
             action="{{ isset($company) ? route('admin.companies.update', $company) : route('admin.companies.store') }}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data"
+            data-autosave
+            data-autosave-key="company::{{ $company->id ?? 'new' }}">
         @csrf
         @if(isset($company)) @method('PUT') @endif
 

@@ -12,7 +12,9 @@
     <div class="card-body">
       <form method="POST"
             action="{{ isset($entry) ? route('finance.update', [$project, $entry]) : route('finance.store', $project) }}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data"
+            data-autosave
+            data-autosave-key="finance::{{ $project->id }}::{{ $entry->id ?? 'new' }}">
         @csrf
         @if(isset($entry)) @method('PUT') @endif
 

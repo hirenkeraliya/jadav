@@ -113,7 +113,9 @@
     </div>
   </div>
 
-  <form method="POST" action="{{ isset($user) ? route('admin.users.update', $user) : route('admin.users.store') }}">
+  <form method="POST" action="{{ isset($user) ? route('admin.users.update', $user) : route('admin.users.store') }}"
+        data-autosave
+        data-autosave-key="user::{{ $user->id ?? 'new' }}">
     @csrf
     @if(isset($user)) @method('PUT') @endif
 

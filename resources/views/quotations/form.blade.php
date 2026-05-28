@@ -18,7 +18,9 @@
 
   <form method="POST"
         action="{{ isset($quotation) ? route('quotations.update', $quotation) : route('quotations.store') }}"
-        id="quotationForm">
+        id="quotationForm"
+        data-autosave
+        data-autosave-key="quotation::{{ $quotation->id ?? 'new' }}">
     @csrf
     @if(isset($quotation)) @method('PUT') @endif
 

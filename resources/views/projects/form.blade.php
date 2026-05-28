@@ -13,7 +13,9 @@
     <div class="card-body">
       <form method="POST"
             action="{{ isset($project) ? route('projects.update', $project) : route('projects.store') }}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data"
+            data-autosave
+            data-autosave-key="project::{{ $project->id ?? 'new' }}">
         @csrf
         @if(isset($project)) @method('PUT') @endif
 

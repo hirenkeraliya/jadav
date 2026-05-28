@@ -12,7 +12,9 @@
 
     <div class="card">
       <div class="card-body">
-        <form method="POST" action="{{ route('settings.users.store') }}">
+        <form method="POST" action="{{ route('settings.users.store') }}"
+              data-autosave
+              data-autosave-key="settings-user::new">
           @csrf
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">

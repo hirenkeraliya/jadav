@@ -11,7 +11,9 @@
 
   <div class="card">
     <div class="card-body">
-      <form method="POST" action="{{ isset($customer) ? route('customers.update', $customer) : route('customers.store') }}">
+      <form method="POST" action="{{ isset($customer) ? route('customers.update', $customer) : route('customers.store') }}"
+            data-autosave
+            data-autosave-key="customer::{{ $customer->id ?? 'new' }}">
         @csrf
         @if(isset($customer)) @method('PUT') @endif
 

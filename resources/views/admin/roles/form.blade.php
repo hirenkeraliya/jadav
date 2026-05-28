@@ -143,7 +143,9 @@
     </div>
   </div>
 
-  <form method="POST" action="{{ isset($role) ? route('admin.roles.update', $role) : route('admin.roles.store') }}">
+  <form method="POST" action="{{ isset($role) ? route('admin.roles.update', $role) : route('admin.roles.store') }}"
+        data-autosave
+        data-autosave-key="role::{{ $role->id ?? 'new' }}">
     @csrf
     @if(isset($role)) @method('PUT') @endif
 

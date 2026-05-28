@@ -63,9 +63,11 @@
           <th>End Date</th>
           <th>Duration</th>
           <th>Deadline</th>
+          @can('finance.view')
           <th style="text-align:right">Received</th>
           <th style="text-align:right">Expense</th>
           <th style="text-align:right">P&amp;L</th>
+          @endcan
           <th style="text-align:right">Actions</th>
         </tr>
       </thead>
@@ -186,6 +188,7 @@
           </td>
 
           {{-- Financials --}}
+          @can('finance.view')
           <td style="text-align:right;font-size:0.85rem;color:{{ $isClosed ? '#9ca3af' : '#10b981' }};font-weight:600;white-space:nowrap">
             {{ $activeCompany->currency_symbol }}{{ number_format($received, 0) }}
           </td>
@@ -195,6 +198,7 @@
           <td style="text-align:right;font-size:0.85rem;font-weight:700;white-space:nowrap;color:{{ $isClosed ? '#9ca3af' : ($pl >= 0 ? '#10b981' : '#ef4444') }}">
             {{ $isClosed ? '' : ($pl >= 0 ? '+' : '') }}{{ $activeCompany->currency_symbol }}{{ number_format($pl, 0) }}
           </td>
+          @endcan
           <td>
             <div style="display:flex;gap:6px;justify-content:flex-end">
               <a href="{{ route('projects.show', $project) }}" class="btn btn-secondary btn-xs">
@@ -210,7 +214,7 @@
         </tr>
         @empty
         <tr>
-          <td colspan="10" style="text-align:center;padding:48px;color:#9ca3af">
+          <td colspan="{{ auth()->user()->can('finance.view') ? 13 : 10 }}" style="text-align:center;padding:48px;color:#9ca3af">
             No projects found. <a href="{{ route('projects.create') }}" style="color:#6366f1;font-weight:600">Create your first project →</a>
           </td>
         </tr>

@@ -14,6 +14,26 @@
   </a>
 </div>
 
+{{-- Stats --}}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+  <div class="stat-card" style="padding:16px">
+    <div style="font-size:0.7rem;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Total Quotations</div>
+    <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ number_format($totalQuotations) }}</div>
+  </div>
+  <div class="stat-card" style="padding:16px">
+    <div style="font-size:0.7rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Pending</div>
+    <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ number_format($pendingQuotations) }}</div>
+  </div>
+  <div class="stat-card" style="padding:16px">
+    <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Total Amount</div>
+    <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($totalAmount, 0) }}</div>
+  </div>
+  <div class="stat-card" style="padding:16px">
+    <div style="font-size:0.7rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Conversion Ratio</div>
+    <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $conversionRatio }}%</div>
+  </div>
+</div>
+
 {{-- Status tabs --}}
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
   @foreach(['' => 'All', 'sent' => 'Sent to Client', 'rejected' => 'Rejected', 'converted' => 'Converted'] as $value => $label)

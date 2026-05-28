@@ -80,6 +80,19 @@
           $received  = (float) ($project->total_received ?? 0);
           $expense   = (float) ($project->total_expense ?? 0);
           $pl        = $received - $expense;
+
+          // Human-readable duration from days
+          $humanDays = function(int $abs): string {
+              $years  = (int) floor($abs / 365);
+              $left   = $abs % 365;
+              $months = (int) floor($left / 30);
+              $days   = $left % 30;
+              $parts  = [];
+              if ($years)  $parts[] = $years  . ' Yr'  . ($years  > 1 ? 's' : '');
+              if ($months) $parts[] = $months . ' Mo'  . ($months > 1 ? 's' : '');
+              if ($days || empty($parts)) $parts[] = $days . ' Day' . ($days !== 1 ? 's' : '');
+              return implode(' ', $parts);
+          };
         @endphp
         <tr style="{{ $isClosed ? 'opacity:0.45;' : '' }}">
 
@@ -149,7 +162,7 @@
               <span style="color:#d1d5db;font-size:0.85rem">—</span>
             @elseif($remaining < 0)
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#fee2e2;color:#991b1b">
-                {{ abs($remaining) }}d overdue
+                {{ $humanDays(abs($remaining)) }} overdue
               </span>
             @elseif($remaining === 0)
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#fef3c7;color:#92400e">
@@ -157,15 +170,15 @@
               </span>
             @elseif($remaining <= 7)
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#ffedd5;color:#c2410c">
-                {{ $remaining }}d left
+                {{ $humanDays($remaining) }} left
               </span>
             @elseif($remaining <= 30)
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#fef9c3;color:#854d0e">
-                {{ $remaining }}d left
+                {{ $humanDays($remaining) }} left
               </span>
             @else
               <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#dcfce7;color:#166534">
-                {{ $remaining }}d left
+                {{ $humanDays($remaining) }} left
               </span>
             @endif
           </td>

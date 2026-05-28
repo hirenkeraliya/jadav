@@ -16,14 +16,13 @@ class Project extends Model
     protected $fillable = [
         'company_id', 'project_code', 'name', 'customer_id',
         'location', 'site_address', 'start_date', 'end_date', 'lead_by',
-        'scope_of_work', 'estimated_amount', 'status', 'priority',
+        'scope_of_work', 'status', 'priority',
         'internal_notes', 'quotation_id',
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date',
-        'estimated_amount' => 'decimal:2',
+        'end_date'   => 'date',
     ];
 
     public function company(): BelongsTo

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\ScopedToCompany;
 use App\Models\Customer;
 use App\Models\Project;
+use App\Models\ProjectType;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\TermsTemplate;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,7 +65,14 @@ class QuotationController extends Controller
         $this->authorize($quotation);
         $quotation->load(['customer', 'items', 'termsTemplate', 'revisions.revisor', 'project', 'revisor']);
         $company = $this->company();
-        return view('quotations.show', compact('quotation', 'company'));
+        $cid = $this->companyId();
+
+        $projectTypes = ProjectType::where('company_id', $cid)->where('is_active', true)->get();
+        $users        = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
+        $count        = Project::where('company_id', $cid)->withTrashed()->count() + 1;
+        $suggestedCode = 'PRJ-' . date('Y') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+
+        return view('quotations.show', compact('quotation', 'company', 'projectTypes', 'users', 'suggestedCode'));
     }
 
     public function edit(Quotation $quotation): View
@@ -121,8 +130,19 @@ class QuotationController extends Controller
         $this->authorize($quotation);
         $cid = $this->companyId();
 
-        $request->validate([
-            'project_name'         => ['nullable', 'string', 'max:255'],
+        $data = $request->validate([
+            'project_code'          => ['required', 'string', 'max:50', 'unique:projects,project_code'],
+            'project_name'          => ['required', 'string', 'max:255'],
+            'project_type_ids'      => ['nullable', 'array'],
+            'project_type_ids.*'    => ['exists:project_types,id'],
+            'start_date'            => ['nullable', 'date'],
+            'end_date'              => ['nullable', 'date', 'after_or_equal:start_date'],
+            'lead_by'               => ['nullable', 'exists:users,id'],
+            'priority'              => ['required', 'in:low,medium,high'],
+            'status'                => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'location'              => ['nullable', 'string', 'max:255'],
+            'scope_of_work'         => ['nullable', 'string'],
+            'internal_notes'        => ['nullable', 'string'],
             'customer_organization' => ['nullable', 'string', 'max:255'],
             'customer_email'        => ['nullable', 'email', 'max:255'],
             'customer_mobile'       => ['nullable', 'string', 'max:20'],
@@ -131,29 +151,34 @@ class QuotationController extends Controller
 
         // Update customer details if provided
         $customerUpdates = array_filter([
-            'organization' => $request->input('customer_organization'),
-            'email'        => $request->input('customer_email'),
-            'mobile'       => $request->input('customer_mobile'),
-            'address'      => $request->input('customer_address'),
+            'organization' => $data['customer_organization'] ?? null,
+            'email'        => $data['customer_email'] ?? null,
+            'mobile'       => $data['customer_mobile'] ?? null,
+            'address'      => $data['customer_address'] ?? null,
         ]);
         if ($customerUpdates) {
             $quotation->customer->update($customerUpdates);
         }
 
-        $count = Project::where('company_id', $cid)->withTrashed()->count() + 1;
-        $code  = 'PRJ-' . date('Y') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $typeIds = $data['project_type_ids'] ?? [];
 
         $project = Project::create([
             'company_id'       => $cid,
-            'project_code'     => $code,
-            'name'             => $request->input('project_name') ?: ($quotation->customer->name . ' Project'),
+            'project_code'     => $data['project_code'],
+            'name'             => $data['project_name'],
             'customer_id'      => $quotation->customer_id,
-            'estimated_amount' => $quotation->total,
-            'status'           => 'pending',
-            'priority'         => 'medium',
+            'status'           => $data['status'],
+            'priority'         => $data['priority'],
+            'start_date'       => $data['start_date'] ?? null,
+            'end_date'         => $data['end_date'] ?? null,
+            'lead_by'          => $data['lead_by'] ?? null,
+            'location'         => $data['location'] ?? null,
+            'scope_of_work'    => $data['scope_of_work'] ?? null,
+            'internal_notes'   => $data['internal_notes'] ?? null,
             'quotation_id'     => $quotation->id,
         ]);
 
+        $project->projectTypes()->sync($typeIds);
         $quotation->update(['status' => 'converted']);
 
         return redirect()->route('projects.show', $project)->with('success', 'Quotation converted to project successfully.');

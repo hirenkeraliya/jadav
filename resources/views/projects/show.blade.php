@@ -34,26 +34,13 @@
 </div>
 
 {{-- Finance summary bar --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
   @php
     $approvedVariations = $project->variations->where('status', 'approved');
     $extraApproved      = $approvedVariations->where('type', 'extra')->sum('amount');
     $lessApproved       = $approvedVariations->where('type', 'less')->sum('amount');
     $netVariation       = $extraApproved - $lessApproved;
-    $revisedEstimate    = ($project->estimated_amount ?? 0) + $netVariation;
   @endphp
-  <div class="stat-card" style="padding:16px">
-    <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Estimated</div>
-    <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($revisedEstimate, 0) }}</div>
-    @if($netVariation != 0)
-      <div style="font-size:0.72rem;color:#9ca3af;margin-top:4px">
-        Original: {{ $activeCompany->currency_symbol }}{{ number_format($project->estimated_amount ?? 0, 0) }}
-      </div>
-      <div style="font-size:0.72rem;font-weight:600;margin-top:1px;color:{{ $netVariation > 0 ? '#10b981' : '#ef4444' }}">
-        Variations: {{ $netVariation > 0 ? '+' : '' }}{{ $activeCompany->currency_symbol }}{{ number_format($netVariation, 0) }}
-      </div>
-    @endif
-  </div>
   <div class="stat-card" style="padding:16px">
     <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Received</div>
     <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($totalReceived, 0) }}</div>

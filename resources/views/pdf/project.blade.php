@@ -83,10 +83,6 @@
   {{-- Finance summary --}}
   <div class="finance-summary">
     <div class="stat-box">
-      <div class="stat-label" style="color:#8b5cf6">Estimated</div>
-      <div class="stat-value">{{ $company->currency_symbol }}{{ number_format($project->estimated_amount ?? 0, 0) }}</div>
-    </div>
-    <div class="stat-box">
       <div class="stat-label" style="color:#10b981">Received</div>
       <div class="stat-value">{{ $company->currency_symbol }}{{ number_format($totalReceived, 0) }}</div>
     </div>

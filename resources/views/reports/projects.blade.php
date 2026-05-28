@@ -28,7 +28,6 @@
           <th>Status</th>
           <th>Priority</th>
           <th>Start Date</th>
-          <th style="text-align:right">Budget</th>
           <th style="text-align:right">Tasks</th>
         </tr>
       </thead>
@@ -43,11 +42,10 @@
           <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>
           <td><span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }}</span></td>
           <td style="color:#9ca3af;font-size:0.82rem">{{ $project->start_date ? $project->start_date->format('d M Y') : '—' }}</td>
-          <td style="text-align:right;font-weight:600">{{ $project->estimated_amount ? $company->currency_symbol.number_format($project->estimated_amount,0) : '—' }}</td>
           <td style="text-align:right;color:#9ca3af">{{ $project->tasks_count ?? 0 }}</td>
         </tr>
         @empty
-        <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">No projects.</td></tr>
+        <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px">No projects.</td></tr>
         @endforelse
       </tbody>
     </table>

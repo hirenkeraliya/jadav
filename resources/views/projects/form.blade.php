@@ -161,7 +161,7 @@
 
         @if($projectTypes->isNotEmpty())
         <div style="margin-bottom:16px">
-          <label class="form-label">Project Types</label>
+          <label class="form-label">Project Types <span style="color:#ef4444">*</span></label>
           @php $selectedTypeIds = old('project_type_ids', isset($project) ? $project->projectTypes->pluck('id')->toArray() : []); @endphp
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">
             @foreach($projectTypes as $pt)
@@ -203,28 +203,21 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
-            <label class="form-label">Start Date</label>
-            <input type="date" name="start_date" class="form-control"
+            <label class="form-label">Start Date <span style="color:#ef4444">*</span></label>
+            <input type="date" name="start_date" class="form-control" required
                    value="{{ old('start_date', isset($project) ? $project->start_date?->format('Y-m-d') : '') }}">
           </div>
           <div>
-            <label class="form-label">End Date</label>
-            <input type="date" name="end_date" class="form-control"
+            <label class="form-label">End Date <span style="color:#ef4444">*</span></label>
+            <input type="date" name="end_date" class="form-control" required
                    value="{{ old('end_date', isset($project) ? $project->end_date?->format('Y-m-d') : '') }}">
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-          <div>
-            <label class="form-label">Location / City</label>
-            <input type="text" name="location" class="form-control"
-                   value="{{ old('location', $project->location ?? '') }}">
-          </div>
-          <div>
-            <label class="form-label">Estimated Amount</label>
-            <input type="number" name="estimated_amount" class="form-control" step="0.01" min="0"
-                   value="{{ old('estimated_amount', $project->estimated_amount ?? '') }}">
-          </div>
+        <div style="margin-bottom:16px">
+          <label class="form-label">Location / City</label>
+          <input type="text" name="location" class="form-control"
+                 value="{{ old('location', $project->location ?? '') }}">
         </div>
 
         <div style="margin-bottom:16px">

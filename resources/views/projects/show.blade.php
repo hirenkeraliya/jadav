@@ -97,12 +97,6 @@
 
 {{-- Finance summary bar --}}
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-  @php
-    $approvedVariations = $project->variations->where('status', 'approved');
-    $extraApproved      = $approvedVariations->where('type', 'extra')->sum('amount');
-    $lessApproved       = $approvedVariations->where('type', 'less')->sum('amount');
-    $netVariation       = $extraApproved - $lessApproved;
-  @endphp
   <div class="stat-card" style="padding:16px">
     <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Received</div>
     <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($totalReceived, 0) }}</div>

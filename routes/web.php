@@ -12,7 +12,6 @@ use App\Http\Controllers\PayrollEntryController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\ProjectCompletionController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectVariationController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
@@ -72,11 +71,6 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     Route::get('projects/{project}/completion/pdf',              [ProjectCompletionController::class, 'pdf'])->name('projects.completion.pdf');
     Route::post('projects/{project}/files', [ProjectController::class, 'uploadFile'])->name('projects.files.upload');
     Route::delete('projects/{project}/files/{file}', [ProjectController::class, 'deleteFile'])->name('projects.files.delete');
-
-    // Project Variations (Extra / Less Work)
-    Route::post('projects/{project}/variations', [ProjectVariationController::class, 'store'])->name('variations.store');
-    Route::put('projects/{project}/variations/{variation}', [ProjectVariationController::class, 'update'])->name('variations.update');
-    Route::delete('projects/{project}/variations/{variation}', [ProjectVariationController::class, 'destroy'])->name('variations.destroy');
 
     // Finance
     Route::get('projects/{project}/finance', [FinanceController::class, 'index'])->name('finance.index');

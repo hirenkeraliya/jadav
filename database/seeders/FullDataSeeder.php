@@ -12,7 +12,6 @@ use App\Models\ProjectCompletion;
 use App\Models\ProjectCompletionItem;
 use App\Models\ProjectCompletionPayment;
 use App\Models\ProjectType;
-use App\Models\ProjectVariation;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\Task;
@@ -23,7 +22,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds all demo data: users, settings, customers, projects,
- * tasks, quotations, finance entries, variations and completions.
+ * tasks, quotations, finance entries and completions.
  *
  * Run: php artisan db:seed --class=FullDataSeeder
  */
@@ -368,21 +367,6 @@ class FullDataSeeder extends Seeder
                     'reference_number'     => $entry['reference_number'] ?? null,
                     'recorded_by'          => $admin->id,
                 ]
-            );
-        }
-
-        // ── Project Variations ────────────────────────────────────────────────
-        $variationsData = [
-            ['project_id' => $pSharma->id,  'company_id' => $company->id, 'type' => 'extra', 'description' => 'Additional bathroom vanity unit as per client request', 'amount' => 35000, 'date' => '2026-03-20', 'status' => 'approved', 'notes' => null,                         'recorded_by' => $admin->id],
-            ['project_id' => $pSharma->id,  'company_id' => $company->id, 'type' => 'extra', 'description' => 'TV panel with LED backlight in master bedroom',          'amount' => 28000, 'date' => '2026-04-05', 'status' => 'pending',  'notes' => 'Awaiting client sign-off', 'recorded_by' => $admin->id],
-            ['project_id' => $pHorizon->id, 'company_id' => $company->id, 'type' => 'extra', 'description' => 'Additional outdoor seating area — 20 covers',            'amount' => 180000,'date' => '2025-12-10', 'status' => 'approved', 'notes' => null,                         'recorded_by' => $admin->id],
-            ['project_id' => $pHorizon->id, 'company_id' => $company->id, 'type' => 'less',  'description' => 'Omission: original bar counter design downgraded',       'amount' => 60000, 'date' => '2026-01-20', 'status' => 'approved', 'notes' => 'Client reduced budget',    'recorded_by' => $admin->id],
-        ];
-
-        foreach ($variationsData as $variation) {
-            ProjectVariation::firstOrCreate(
-                ['project_id' => $variation['project_id'], 'description' => $variation['description']],
-                $variation
             );
         }
 

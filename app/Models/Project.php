@@ -70,11 +70,6 @@ class Project extends Model
         return $this->hasOne(ProjectCompletion::class);
     }
 
-    public function variations(): HasMany
-    {
-        return $this->hasMany(ProjectVariation::class)->latest('date');
-    }
-
     public function customFieldValues(): MorphMany
     {
         return $this->morphMany(CustomFieldValue::class, 'record');

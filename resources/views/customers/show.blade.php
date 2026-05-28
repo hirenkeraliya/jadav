@@ -60,25 +60,6 @@
       </div>
     </div>
 
-    {{-- Finance summary --}}
-    <div class="card">
-      <div class="card-body">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:0.8rem;color:#6b7280">Total Invoiced</span>
-          <span style="font-weight:700;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($customer->invoices->sum('total'), 0) }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:0.8rem;color:#6b7280">Paid</span>
-          <span style="font-weight:700;color:#10b981">{{ $activeCompany->currency_symbol }}{{ number_format($customer->invoices->sum('paid_amount'), 0) }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #f3f4f6">
-          <span style="font-size:0.85rem;font-weight:700;color:#1e1b4b">Outstanding</span>
-          <span style="font-weight:800;color:{{ $customer->getTotalOutstandingAttribute() > 0 ? '#ef4444' : '#10b981' }};font-size:1rem">
-            {{ $activeCompany->currency_symbol }}{{ number_format($customer->getTotalOutstandingAttribute(), 0) }}
-          </span>
-        </div>
-      </div>
-    </div>
   </div>
 
   {{-- Projects & Invoices --}}
@@ -106,29 +87,6 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <span style="font-weight:700">Invoices ({{ $customer->invoices->count() }})</span>
-        <a href="{{ route('invoices.create') }}?customer_id={{ $customer->id }}" class="btn btn-secondary btn-sm">+ Invoice</a>
-      </div>
-      <div class="table-wrapper">
-        <table class="table">
-          <thead><tr><th>Invoice #</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
-          <tbody>
-            @forelse($customer->invoices as $inv)
-            <tr>
-              <td><a href="{{ route('invoices.show', $inv) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $inv->invoice_number }}</a></td>
-              <td>{{ $inv->invoice_date->format('d M Y') }}</td>
-              <td>{{ $activeCompany->currency_symbol }}{{ number_format($inv->total, 0) }}</td>
-              <td><span class="badge badge-{{ $inv->status }}">{{ ucfirst($inv->status) }}</span></td>
-            </tr>
-            @empty
-            <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:20px">No invoices yet</td></tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </div>
 @endsection

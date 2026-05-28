@@ -8,7 +8,6 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
-use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\ReportController;
@@ -79,12 +78,6 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     Route::post('quotations/{quotation}/revise', [QuotationController::class, 'revise'])->name('quotations.revise');
     Route::post('quotations/{quotation}/convert', [QuotationController::class, 'convertToProject'])->name('quotations.convert');
     Route::get('quotations/{quotation}/pdf', [QuotationController::class, 'pdf'])->name('quotations.pdf');
-
-    // Invoices
-    Route::resource('invoices', InvoiceController::class);
-    Route::post('invoices/{invoice}/payments', [InvoiceController::class, 'addPayment'])->name('invoices.payments.store');
-    Route::delete('invoices/{invoice}/payments/{payment}', [InvoiceController::class, 'deletePayment'])->name('invoices.payments.delete');
-    Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->name('invoices.pdf');
 
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');

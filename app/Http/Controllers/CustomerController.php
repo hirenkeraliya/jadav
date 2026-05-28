@@ -63,7 +63,7 @@ class CustomerController extends Controller
     public function show(Customer $customer): View
     {
         $this->authorizeCompany($customer);
-        $customer->load(['projects.financeEntries', 'invoices']);
+        $customer->load(['projects.financeEntries']);
 
         $ledger = $customer->projects->map(function ($project) {
             return [

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ScopedToCompany;
-use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Quotation;
 use App\Models\Task;
@@ -23,18 +22,14 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $totalProjects   = Project::where('company_id', $cid)->count();
-        $runningProjects = $projectsByStatus->get('running', 0);
+        $totalProjects     = Project::where('company_id', $cid)->count();
+        $runningProjects   = $projectsByStatus->get('running', 0);
         $completedProjects = $projectsByStatus->get('completed', 0);
-        $delayedProjects = $projectsByStatus->get('delayed', 0);
+        $delayedProjects   = $projectsByStatus->get('delayed', 0);
 
-        $totalQuotations  = Quotation::where('company_id', $cid)->count();
+        $totalQuotations     = Quotation::where('company_id', $cid)->count();
         $convertedQuotations = Quotation::where('company_id', $cid)->where('status', 'converted')->count();
         $conversionRate = $totalQuotations > 0 ? round(($convertedQuotations / $totalQuotations) * 100, 1) : 0;
-
-        $totalInvoiced  = Invoice::where('company_id', $cid)->sum('total');
-        $totalCollected = Invoice::where('company_id', $cid)->sum('paid_amount');
-        $totalOutstanding = $totalInvoiced - $totalCollected;
 
         $recentProjects = Project::where('company_id', $cid)
             ->with(['customer', 'projectTypes'])
@@ -63,8 +58,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'company', 'projectsByStatus', 'totalProjects', 'runningProjects',
             'completedProjects', 'delayedProjects', 'totalQuotations',
-            'convertedQuotations', 'conversionRate', 'totalInvoiced',
-            'totalCollected', 'totalOutstanding', 'recentProjects',
+            'convertedQuotations', 'conversionRate', 'recentProjects',
             'myTasks', 'upcomingDeadlines'
         ));
     }

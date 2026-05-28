@@ -32,20 +32,9 @@ class Customer extends Model
         return $this->hasMany(Quotation::class);
     }
 
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
     public function customFieldValues(): MorphMany
     {
         return $this->morphMany(CustomFieldValue::class, 'record');
     }
 
-    public function getTotalOutstandingAttribute(): float
-    {
-        return $this->invoices()
-            ->whereIn('status', ['sent', 'partial', 'overdue'])
-            ->sum(\DB::raw('total - paid_amount'));
-    }
 }

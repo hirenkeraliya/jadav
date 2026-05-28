@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ScopedToCompany;
 use App\Models\FinanceEntry;
-use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
@@ -99,8 +98,6 @@ class ReportController extends Controller
 
         $projects = Project::where('company_id', $cid)
             ->with(['customer', 'projectTypes'])
-            ->withSum('invoices as invoices_sum_total', 'total')
-            ->withSum('invoices as invoices_sum_paid_amount', 'paid_amount')
             ->withCount('tasks')
             ->latest()
             ->get();

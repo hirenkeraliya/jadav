@@ -55,11 +55,6 @@ class Company extends Model
         return $this->hasMany(Quotation::class);
     }
 
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
     public function termsTemplates(): HasMany
     {
         return $this->hasMany(TermsTemplate::class);

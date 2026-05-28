@@ -65,10 +65,6 @@
         <div class="stat-value">{{ $company->customers->count() }}</div>
         <div class="stat-label">Customers</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ $company->invoices->count() }}</div>
-        <div class="stat-label">Invoices</div>
-      </div>
     </div>
   </div>
 </div>

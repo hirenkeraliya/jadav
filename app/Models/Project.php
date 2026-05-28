@@ -66,11 +66,6 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
     public function customFieldValues(): MorphMany
     {
         return $this->morphMany(CustomFieldValue::class, 'record');

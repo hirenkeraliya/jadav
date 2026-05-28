@@ -57,7 +57,10 @@
           <th>Type</th>
           <th>Status</th>
           <th>Priority</th>
-          <th>Timeline</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Duration</th>
+          <th>Deadline</th>
           <th style="text-align:right">Received</th>
           <th style="text-align:right">Expense</th>
           <th style="text-align:right">P&amp;L</th>
@@ -85,49 +88,62 @@
           </td>
           <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>
           <td><span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }}</span></td>
-          <td style="min-width:160px">
-            @php
-              $isActive   = !in_array($project->status, ['completed', 'cancelled', 'invoiced']);
-              $today      = now()->startOfDay();
-              $start      = $project->start_date;
-              $end        = $project->end_date;
-              $totalDays  = ($start && $end) ? (int) $start->diffInDays($end) : null;
-              $spentDays  = $start ? (int) $start->diffInDays(min($today, $end ?? $today)) : null;
-              $remaining  = $end ? (int) $today->diffInDays($end, false) : null; // negative = overdue
-            @endphp
+          @php
+            $isActive  = !in_array($project->status, ['completed', 'cancelled', 'invoiced']);
+            $today     = now()->startOfDay();
+            $start     = $project->start_date;
+            $end       = $project->end_date;
+            $totalDays = ($start && $end) ? (int) $start->diffInDays($end) : null;
+            $remaining = $end ? (int) $today->diffInDays($end, false) : null;
+          @endphp
 
-            @if($start || $end)
-              {{-- Dates row --}}
-              <div style="font-size:0.78rem;color:#6b7280">
-                {{ $start ? $start->format('d M Y') : '—' }}
-                @if($end) → {{ $end->format('d M Y') }} @endif
-              </div>
+          {{-- Start Date --}}
+          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
+            {{ $start ? $start->format('d M Y') : '—' }}
+          </td>
 
-              @if($totalDays !== null)
-              {{-- Duration --}}
-              <div style="font-size:0.75rem;color:#9ca3af;margin-top:1px">
-                {{ $totalDays }} day{{ $totalDays !== 1 ? 's' : '' }} total
-              </div>
-              @endif
+          {{-- End Date --}}
+          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
+            {{ $end ? $end->format('d M Y') : '—' }}
+          </td>
 
-              @if($end && $isActive)
-                @if($remaining < 0)
-                  {{-- Overdue --}}
-                  <div style="font-size:0.75rem;font-weight:700;color:#ef4444;margin-top:3px">
-                    {{ abs($remaining) }} day{{ abs($remaining) !== 1 ? 's' : '' }} overdue
-                  </div>
-                @elseif($remaining === 0)
-                  <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;margin-top:3px">Due today</div>
-                @else
-                  <div style="font-size:0.75rem;color:#10b981;font-weight:600;margin-top:3px">
-                    {{ $remaining }} day{{ $remaining !== 1 ? 's' : '' }} left
-                  </div>
-                @endif
-              @elseif($end && !$isActive)
-                <div style="font-size:0.75rem;color:#9ca3af;margin-top:3px">Closed</div>
-              @endif
+          {{-- Duration --}}
+          <td style="font-size:0.85rem;white-space:nowrap;color:#6b7280">
+            @if($totalDays !== null)
+              {{ $totalDays }} day{{ $totalDays !== 1 ? 's' : '' }}
             @else
-              <span style="color:#9ca3af">—</span>
+              —
+            @endif
+          </td>
+
+          {{-- Deadline --}}
+          <td style="white-space:nowrap">
+            @if(!$end)
+              <span style="color:#9ca3af;font-size:0.85rem">—</span>
+            @elseif(!$isActive)
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#f3f4f6;color:#6b7280">
+                Closed
+              </span>
+            @elseif($remaining < 0)
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#fee2e2;color:#991b1b">
+                {{ abs($remaining) }}d overdue
+              </span>
+            @elseif($remaining === 0)
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#fef3c7;color:#92400e">
+                Due today
+              </span>
+            @elseif($remaining <= 7)
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;background:#ffedd5;color:#c2410c">
+                {{ $remaining }}d left
+              </span>
+            @elseif($remaining <= 30)
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#fef9c3;color:#854d0e">
+                {{ $remaining }}d left
+              </span>
+            @else
+              <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:#dcfce7;color:#166534">
+                {{ $remaining }}d left
+              </span>
             @endif
           </td>
           @php

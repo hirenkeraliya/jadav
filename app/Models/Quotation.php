@@ -80,12 +80,14 @@ class Quotation extends Model
 
     public function recalculate(): void
     {
-        $subtotal = $this->items()->sum(\DB::raw('qty * unit_rate'));
+        $subtotal      = (float) $this->items()->sum(\DB::raw('qty * unit_rate'));
+        $discountValue = (float) ($this->discount_value ?? 0);
+        $taxRate       = (float) ($this->tax_rate ?? 0);
         $discountAmount = $this->discount_type === 'percentage'
-            ? $subtotal * ($this->discount_value / 100)
-            : $this->discount_value;
-        $taxable = $subtotal - $discountAmount;
-        $taxAmount = $taxable * ($this->tax_rate / 100);
+            ? $subtotal * ($discountValue / 100)
+            : $discountValue;
+        $taxable   = $subtotal - $discountAmount;
+        $taxAmount = $taxable * ($taxRate / 100);
         $this->update([
             'subtotal' => $subtotal,
             'discount_amount' => $discountAmount,

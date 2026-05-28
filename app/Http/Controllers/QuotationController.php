@@ -195,7 +195,7 @@ class QuotationController extends Controller
 
     private function validateQuotation(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'customer_id'       => ['required', 'exists:customers,id'],
             'date'              => ['required', 'date'],
             'valid_until'       => ['nullable', 'date'],
@@ -207,6 +207,12 @@ class QuotationController extends Controller
             'status'            => ['required', 'in:draft,sent,accepted,rejected,expired,converted'],
             'terms_template_id' => ['nullable', 'exists:terms_templates,id'],
         ]);
+
+        // Columns are NOT NULL with default 0 — coerce blanks so saving without a discount/tax works.
+        $data['discount_value'] = $data['discount_value'] ?? 0;
+        $data['tax_rate']       = $data['tax_rate'] ?? 0;
+
+        return $data;
     }
 
     private function syncItems(Quotation $quotation, array $items): void

@@ -159,18 +159,26 @@
         </script>
         @endpush
 
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
-          <div>
-            <label class="form-label">Project Type</label>
-            <select name="project_type_id" class="form-control">
-              <option value="">— None —</option>
-              @foreach($projectTypes as $pt)
-                <option value="{{ $pt->id }}" {{ old('project_type_id', $project->project_type_id ?? '') == $pt->id ? 'selected' : '' }}>
-                  {{ $pt->name }}
-                </option>
-              @endforeach
-            </select>
+        @if($projectTypes->isNotEmpty())
+        <div style="margin-bottom:16px">
+          <label class="form-label">Project Types</label>
+          @php $selectedTypeIds = old('project_type_ids', isset($project) ? $project->projectTypes->pluck('id')->toArray() : []); @endphp
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">
+            @foreach($projectTypes as $pt)
+            <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:6px 12px;font-size:0.875rem;transition:all 0.15s"
+                   onclick="this.style.background=this.querySelector('input').checked?'#f9fafb':'#ede9fe';this.style.borderColor=this.querySelector('input').checked?'#e5e7eb':'#8b5cf6'">
+              <input type="checkbox" name="project_type_ids[]" value="{{ $pt->id }}"
+                     style="accent-color:#8b5cf6;width:15px;height:15px"
+                     {{ in_array($pt->id, (array)$selectedTypeIds) ? 'checked' : '' }}>
+              <span style="width:10px;height:10px;border-radius:50%;background:{{ $pt->color }};flex-shrink:0"></span>
+              {{ $pt->name }}
+            </label>
+            @endforeach
           </div>
+        </div>
+        @endif
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
             <label class="form-label">Status <span style="color:#ef4444">*</span></label>
             <select name="status" class="form-control" required>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,7 +14,7 @@ class Project extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'project_code', 'name', 'customer_id', 'project_type_id',
+        'company_id', 'project_code', 'name', 'customer_id',
         'location', 'site_address', 'start_date', 'end_date', 'lead_by',
         'scope_of_work', 'estimated_amount', 'status', 'priority',
         'internal_notes', 'quotation_id',
@@ -35,9 +36,9 @@ class Project extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function projectType(): BelongsTo
+    public function projectTypes(): BelongsToMany
     {
-        return $this->belongsTo(ProjectType::class);
+        return $this->belongsToMany(ProjectType::class);
     }
 
     public function leadBy(): BelongsTo

@@ -98,7 +98,7 @@ class ReportController extends Controller
             ->pluck('total', 'status');
 
         $projects = Project::where('company_id', $cid)
-            ->with(['customer', 'projectType'])
+            ->with(['customer', 'projectTypes'])
             ->withSum('invoices as invoices_sum_total', 'total')
             ->withSum('invoices as invoices_sum_paid_amount', 'paid_amount')
             ->withCount('tasks')

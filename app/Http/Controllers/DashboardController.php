@@ -37,7 +37,7 @@ class DashboardController extends Controller
         $totalOutstanding = $totalInvoiced - $totalCollected;
 
         $recentProjects = Project::where('company_id', $cid)
-            ->with(['customer', 'projectType'])
+            ->with(['customer', 'projectTypes'])
             ->latest()
             ->limit(5)
             ->get();

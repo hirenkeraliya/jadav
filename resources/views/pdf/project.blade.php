@@ -106,7 +106,7 @@
     <div class="col">
       <div class="section-title">Project Details</div>
       <div class="field-row"><span class="field-label">Customer</span><span class="field-value">{{ $project->customer->name ?? '—' }}{{ $project->customer->organization ? ' ('.$project->customer->organization.')' : '' }}</span></div>
-      <div class="field-row"><span class="field-label">Project Type</span><span class="field-value">{{ $project->projectType->name ?? '—' }}</span></div>
+      <div class="field-row"><span class="field-label">Project Types</span><span class="field-value">{{ $project->projectTypes->pluck('name')->join(', ') ?: '—' }}</span></div>
       <div class="field-row"><span class="field-label">Lead By</span><span class="field-value">{{ $project->leadBy->name ?? '—' }}</span></div>
       <div class="field-row"><span class="field-label">Start Date</span><span class="field-value">{{ $project->start_date ? $project->start_date->format('d M Y') : '—' }}</span></div>
       <div class="field-row"><span class="field-label">End Date</span><span class="field-value">{{ $project->end_date ? $project->end_date->format('d M Y') : '—' }}</span></div>

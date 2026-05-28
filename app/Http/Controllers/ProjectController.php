@@ -25,7 +25,7 @@ class ProjectController extends Controller
     {
         $cid = $this->companyId();
         $query = Project::where('company_id', $cid)
-            ->with(['customer', 'projectType', 'leadBy'])
+            ->with(['customer', 'projectTypes', 'leadBy'])
             ->withSum(['financeEntries as total_received' => fn($q) => $q->where('type', 'credit')], 'amount')
             ->withSum(['financeEntries as total_expense' => fn($q) => $q->where('type', 'debit')], 'amount');
 
@@ -33,7 +33,9 @@ class ProjectController extends Controller
             $query->where(fn($q) => $q->where('name', 'like', "%{$s}%")->orWhere('project_code', 'like', "%{$s}%"));
         }
         if ($status = $request->input('status')) $query->where('status', $status);
-        if ($type = $request->input('project_type_id')) $query->where('project_type_id', $type);
+        if ($type = $request->input('project_type_id')) {
+            $query->whereHas('projectTypes', fn($q) => $q->where('project_types.id', $type));
+        }
         if ($customer = $request->input('customer_id')) $query->where('customer_id', $customer);
         if ($lead = $request->input('lead_by')) $query->where('lead_by', $lead);
 
@@ -62,7 +64,8 @@ class ProjectController extends Controller
             'project_code'     => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')],
             'name'             => ['required', 'string', 'max:255'],
             'customer_id'      => ['required', 'exists:customers,id'],
-            'project_type_id'  => ['nullable', 'exists:project_types,id'],
+            'project_type_ids' => ['nullable', 'array'],
+            'project_type_ids.*' => ['exists:project_types,id'],
             'location'         => ['nullable', 'string'],
             'site_address'     => ['nullable', 'string'],
             'start_date'       => ['nullable', 'date'],
@@ -75,11 +78,11 @@ class ProjectController extends Controller
             'internal_notes'   => ['nullable', 'string'],
         ]);
 
-        $project = Project::create(array_merge($data, [
-            'company_id' => $cid,
-        ]));
+        $typeIds = $data['project_type_ids'] ?? [];
+        unset($data['project_type_ids']);
 
-        // Save custom fields
+        $project = Project::create(array_merge($data, ['company_id' => $cid]));
+        $project->projectTypes()->sync($typeIds);
         $this->saveCustomFields($request, $project, $cid);
 
         return redirect()->route('projects.show', $project)->with('success', 'Project created.');
@@ -88,7 +91,7 @@ class ProjectController extends Controller
     public function show(Project $project): View
     {
         $this->authorizeCompany($project);
-        $project->load(['customer', 'projectType', 'leadBy', 'files', 'tasks.assignee', 'invoices', 'quotation']);
+        $project->load(['customer', 'projectTypes', 'leadBy', 'files', 'tasks.assignee', 'invoices', 'quotation']);
 
         $cid = $this->companyId();
         $financeEntries = $project->financeEntries()->with(['entryType', 'paymentType', 'recorder'])->latest('date')->get();
@@ -114,6 +117,7 @@ class ProjectController extends Controller
         $users = User::whereHas('companies', fn($q) => $q->where('companies.id', $cid))->get();
         $customFields = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->orderBy('sort_order')->get();
         $customValues = $project->customFieldValues()->get()->keyBy('custom_field_id');
+        $project->load('projectTypes');
         return view('projects.edit', compact('project', 'customers', 'projectTypes', 'users', 'customFields', 'customValues'));
     }
 
@@ -123,23 +127,28 @@ class ProjectController extends Controller
         $cid = $this->companyId();
 
         $data = $request->validate([
-            'project_code'     => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')->ignore($project->id)],
-            'name'             => ['required', 'string', 'max:255'],
-            'customer_id'      => ['required', 'exists:customers,id'],
-            'project_type_id'  => ['nullable', 'exists:project_types,id'],
-            'location'         => ['nullable', 'string'],
-            'site_address'     => ['nullable', 'string'],
-            'start_date'       => ['nullable', 'date'],
-            'end_date'         => ['nullable', 'date'],
-            'lead_by'          => ['nullable', 'exists:users,id'],
-            'scope_of_work'    => ['nullable', 'string'],
-            'estimated_amount' => ['nullable', 'numeric', 'min:0'],
-            'status'           => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
-            'priority'         => ['required', 'in:low,medium,high'],
-            'internal_notes'   => ['nullable', 'string'],
+            'project_code'       => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')->ignore($project->id)],
+            'name'               => ['required', 'string', 'max:255'],
+            'customer_id'        => ['required', 'exists:customers,id'],
+            'project_type_ids'   => ['nullable', 'array'],
+            'project_type_ids.*' => ['exists:project_types,id'],
+            'location'           => ['nullable', 'string'],
+            'site_address'       => ['nullable', 'string'],
+            'start_date'         => ['nullable', 'date'],
+            'end_date'           => ['nullable', 'date'],
+            'lead_by'            => ['nullable', 'exists:users,id'],
+            'scope_of_work'      => ['nullable', 'string'],
+            'estimated_amount'   => ['nullable', 'numeric', 'min:0'],
+            'status'             => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'priority'           => ['required', 'in:low,medium,high'],
+            'internal_notes'     => ['nullable', 'string'],
         ]);
 
+        $typeIds = $data['project_type_ids'] ?? [];
+        unset($data['project_type_ids']);
+
         $project->update($data);
+        $project->projectTypes()->sync($typeIds);
         $this->saveCustomFields($request, $project, $cid);
 
         return redirect()->route('projects.show', $project)->with('success', 'Project updated.');
@@ -176,7 +185,7 @@ class ProjectController extends Controller
     public function pdf(Project $project): Response
     {
         $this->authorizeCompany($project);
-        $project->load(['customer', 'projectType', 'leadBy', 'tasks.assignee', 'quotation']);
+        $project->load(['customer', 'projectTypes', 'leadBy', 'tasks.assignee', 'quotation']);
 
         $cid = $this->companyId();
         $company = $this->company();

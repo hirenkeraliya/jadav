@@ -73,12 +73,14 @@
           </td>
           <td>{{ $project->customer->name ?? '—' }}</td>
           <td>
-            @if($project->projectType)
-              <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.8rem">
-                <span style="width:8px;height:8px;border-radius:50%;background:{{ $project->projectType->color }}"></span>
-                {{ $project->projectType->name }}
-              </span>
-            @else —
+            @foreach($project->projectTypes as $pt)
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;white-space:nowrap;background:#f3f4f6;padding:2px 7px;border-radius:20px;margin-bottom:2px">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ $pt->color }}"></span>
+                {{ $pt->name }}
+              </span><br>
+            @endforeach
+            @if($project->projectTypes->isEmpty())
+              <span style="color:#9ca3af">—</span>
             @endif
           </td>
           <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>

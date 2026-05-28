@@ -39,7 +39,7 @@
         <tr>
           <td>
             <a href="{{ route('projects.show', $project) }}" style="font-weight:700;color:#6366f1;text-decoration:none">{{ $project->name }}</a>
-            @if($project->projectType) <div style="font-size:0.75rem;color:#9ca3af">{{ $project->projectType->name }}</div> @endif
+            @foreach($project->projectTypes as $pt) <span style="font-size:0.72rem;color:#9ca3af">{{ $pt->name }}</span> @endforeach
           </td>
           <td>{{ $project->customer->name ?? '—' }}</td>
           <td><span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span></td>

@@ -15,12 +15,12 @@
     <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
       <span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span>
       <span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }} Priority</span>
-      @if($project->projectType)
-        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:#6b7280">
-          <span style="width:8px;height:8px;border-radius:50%;background:{{ $project->projectType->color }}"></span>
-          {{ $project->projectType->name }}
+      @foreach($project->projectTypes as $pt)
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:20px">
+          <span style="width:8px;height:8px;border-radius:50%;background:{{ $pt->color }}"></span>
+          {{ $pt->name }}
         </span>
-      @endif
+      @endforeach
     </div>
   </div>
   <div style="display:flex;gap:8px">

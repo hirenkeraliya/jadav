@@ -65,6 +65,11 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function completion(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ProjectCompletion::class);
+    }
+
     public function variations(): HasMany
     {
         return $this->hasMany(ProjectVariation::class)->latest('date');

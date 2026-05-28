@@ -74,17 +74,17 @@
   <div style="display:flex;gap:8px;align-items:center">
     @if($project->status === 'running')
       @can('projects.change_status')
-      <form method="POST" action="{{ route('projects.change-status', $project) }}">
-        @csrf @method('PATCH')
-        <input type="hidden" name="status" value="completed">
-        <button type="submit"
-                style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:0.875rem;font-weight:700;cursor:pointer"
-                onclick="return confirm('Mark this project as Completed?')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Complete Project
-        </button>
-      </form>
+      <a href="{{ route('projects.complete.create', $project) }}"
+         style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:0.875rem;font-weight:700;text-decoration:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Project
+      </a>
       @endcan
+    @endif
+    @if($project->completion)
+      <a href="{{ route('projects.completion.pdf', $project) }}" target="_blank" class="btn btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Invoice PDF
+      </a>
     @endif
     <a href="{{ route('projects.pdf', $project) }}" target="_blank" class="btn btn-secondary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
@@ -297,6 +297,136 @@
     </table>
   </div>
 </div>
+
+{{-- Completion Invoice + Payment Tracking --}}
+@if($project->completion)
+@php $c = $project->completion; @endphp
+<div class="card mb-5" style="border:2px solid {{ $c->payment_status === 'paid' ? '#10b981' : ($c->payment_status === 'partial' ? '#f59e0b' : '#ef4444') }}">
+  <div class="card-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-weight:700">Completion Invoice</span>
+      <span style="font-size:0.78rem;color:#6b7280">{{ $c->invoice_number }}</span>
+      @php
+        $psBadge = match($c->payment_status) {
+          'paid'    => ['bg'=>'#d1fae5','color'=>'#065f46','label'=>'Paid'],
+          'partial' => ['bg'=>'#fef3c7','color'=>'#92400e','label'=>'Partial'],
+          default   => ['bg'=>'#fee2e2','color'=>'#991b1b','label'=>'Unpaid — Pending Collection'],
+        };
+      @endphp
+      <span style="background:{{ $psBadge['bg'] }};color:{{ $psBadge['color'] }};font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:20px">{{ $psBadge['label'] }}</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a href="{{ route('projects.completion.edit', $project) }}" class="btn btn-secondary btn-sm">Edit Invoice</a>
+      <a href="{{ route('projects.completion.pdf', $project) }}" target="_blank" class="btn btn-secondary btn-sm">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+      </a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+    {{-- Line items --}}
+    <div style="padding:16px 20px;border-right:1px solid #f3f4f6">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:10px">Line Items</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead>
+          <tr style="border-bottom:1px solid #f3f4f6">
+            <th style="text-align:left;padding:4px 0;font-weight:600;color:#6b7280">Description</th>
+            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Qty</th>
+            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Rate</th>
+            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($c->items as $item)
+          <tr style="border-bottom:1px solid #f9fafb">
+            <td style="padding:6px 0">{{ $item->description }}</td>
+            <td style="text-align:right;padding:6px 0">{{ $item->qty }}</td>
+            <td style="text-align:right;padding:6px 0">{{ $activeCompany->currency_symbol }}{{ number_format($item->rate, 0) }}</td>
+            <td style="text-align:right;padding:6px 0;font-weight:600">{{ $activeCompany->currency_symbol }}{{ number_format($item->amount, 0) }}</td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:2px solid #1e1b4b;font-weight:800">
+        <span>Invoice Total</span>
+        <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->total, 0) }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;color:#10b981;font-weight:600">
+        <span>Received</span>
+        <span>- {{ $activeCompany->currency_symbol }}{{ number_format($c->paid_amount, 0) }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:8px;border-top:1px solid #f3f4f6;font-weight:800;color:#ef4444">
+        <span>Due</span>
+        <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->due_amount, 0) }}</span>
+      </div>
+    </div>
+
+    {{-- Payments --}}
+    <div style="padding:16px 20px">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:10px">Payments</div>
+
+      @forelse($c->payments as $pmt)
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f9fafb;font-size:0.85rem">
+        <div>
+          <div style="font-weight:600">{{ $activeCompany->currency_symbol }}{{ number_format($pmt->amount, 0) }}</div>
+          <div style="font-size:0.75rem;color:#9ca3af">{{ $pmt->date->format('d M Y') }}{{ $pmt->reference ? ' · '.$pmt->reference : '' }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:0.75rem;color:#9ca3af">{{ $pmt->recorder?->name }}</span>
+          @can('finance.create')
+          <form method="POST" action="{{ route('projects.completion.payment.destroy', [$project, $pmt]) }}" onsubmit="return confirm('Remove this payment?')">
+            @csrf @method('DELETE')
+            <button type="submit" style="background:none;border:none;cursor:pointer;color:#9ca3af">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </form>
+          @endcan
+        </div>
+      </div>
+      @empty
+      <div style="color:#9ca3af;font-size:0.85rem;padding:12px 0">No payments recorded yet.</div>
+      @endforelse
+
+      @can('finance.create')
+      @if($c->payment_status !== 'paid')
+      <form method="POST" action="{{ route('projects.completion.payment', $project) }}" style="margin-top:14px">
+        @csrf
+        <div style="font-size:0.78rem;font-weight:600;color:#374151;margin-bottom:8px">Record Payment</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <label class="form-label" style="font-size:0.72rem">Amount <span style="color:#ef4444">*</span></label>
+            <input type="number" name="amount" class="form-control" step="0.01" min="0.01"
+                   placeholder="{{ number_format($c->due_amount, 0) }}" required>
+          </div>
+          <div>
+            <label class="form-label" style="font-size:0.72rem">Date <span style="color:#ef4444">*</span></label>
+            <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <label class="form-label" style="font-size:0.72rem">Reference / Cheque No.</label>
+          <input type="text" name="reference" class="form-control" placeholder="Optional reference">
+        </div>
+        <button type="submit" style="width:100%;padding:8px;background:#10b981;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.85rem">
+          Mark Payment Received
+        </button>
+      </form>
+      @else
+      <div style="margin-top:14px;background:#d1fae5;border-radius:8px;padding:12px;text-align:center;font-size:0.85rem;color:#065f46;font-weight:700">
+        ✓ Fully Paid
+      </div>
+      @endif
+      @endcan
+    </div>
+  </div>
+
+  @if($c->notes)
+  <div style="padding:12px 20px;border-top:1px solid #f3f4f6;font-size:0.85rem;color:#6b7280;background:#fafafa">
+    {{ $c->notes }}
+  </div>
+  @endif
+</div>
+@endif
 
 {{-- Variations (Extra / Less Work) --}}
 @if(auth()->user()->can('variations.view'))

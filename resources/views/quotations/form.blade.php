@@ -29,9 +29,9 @@
       <div class="card-body">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
           <div>
-            <label class="form-label">Customer <span style="color:#ef4444">*</span></label>
+            <label class="form-label">Client <span style="color:#ef4444">*</span></label>
             <select name="customer_id" class="form-control" required>
-              <option value="">— Select Customer —</option>
+              <option value="">— Select Client —</option>
               @foreach($customers as $c)
                 <option value="{{ $c->id }}" {{ old('customer_id', $quotation->customer_id ?? request('customer_id')) == $c->id ? 'selected' : '' }}>
                   {{ $c->name }}{{ $c->organization ? ' ('.$c->organization.')' : '' }}

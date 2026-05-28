@@ -53,7 +53,7 @@
       <thead>
         <tr>
           <th>Project</th>
-          <th>Customer</th>
+          <thClient</th>
           <th>Type</th>
           <th>Status</th>
           <th>Priority</th>
@@ -107,7 +107,7 @@
             @endif
           </td>
 
-          {{-- Customer --}}
+          {{-- Client --}}
           <td style="color:{{ $isClosed ? '#9ca3af' : 'inherit' }}">{{ $project->customer->name ?? '—' }}</td>
 
           {{-- Project Types --}}

@@ -65,7 +65,7 @@
               <select name="module" class="form-control" required>
                 <option value="">&mdash; Select &mdash;</option>
                 <option value="project">Project</option>
-                <option value="customer">Customer</option>
+                <option value="customer"Client</option>
               </select>
             </div>
             <div>

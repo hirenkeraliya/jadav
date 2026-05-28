@@ -45,7 +45,7 @@
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
           <div>
-            <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:4px">Customer</div>
+            <div style="font-size:0.75rem;font-weight:700;color:#8b5cf6;margin-bottom:4px">Client</div>
             <div style="font-weight:700;font-size:1.05rem;color:#1e1b4b">{{ $quotation->customer->name }}</div>
             @if($quotation->customer->organization) <div style="font-size:0.85rem;color:#6b7280">{{ $quotation->customer->organization }}</div> @endif
             @if($quotation->customer->email) <div style="font-size:0.85rem;color:#6b7280">{{ $quotation->customer->email }}</div> @endif
@@ -299,10 +299,10 @@
                     placeholder="Private notes visible to your team only…">{{ old('internal_notes') }}</textarea>
         </div>
 
-        {{-- Customer details (if incomplete) --}}
+        {{-- Client details (if incomplete) --}}
         @if($needsDetails)
         <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#8b5cf6;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #ede9fe">
-          Customer Details
+          Client Details
         </div>
         <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82rem;color:#713f12">
           <strong>{{ $customer->name }}</strong> has no contact details on file. Please add them now (optional).

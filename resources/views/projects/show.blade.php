@@ -124,7 +124,7 @@
     <div class="card-body">
       <dl style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:0.875rem;align-items:start">
 
-        <dt style="color:#8b5cf6;font-weight:600;white-space:nowrap">Customer</dt>
+        <dt style="color:#8b5cf6;font-weight:600;white-space:nowrap"Client</dt>
         <dd>
           @if($project->customer)
             <a href="{{ route('customers.show', $project->customer) }}" style="color:#4f46e5;text-decoration:none;font-weight:500">

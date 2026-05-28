@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $customer->name)
 @section('breadcrumb')
-  <a href="{{ route('customers.index') }}" style="color:#8b5cf6;text-decoration:none">Customers</a> /
+  <a href="{{ route('customers.index') }}" style="color:#8b5cf6;text-decoration:none">Clients</a> /
   {{ $customer->name }}
 @endsection
 

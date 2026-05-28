@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', isset($customer) ? 'Edit Customer' : 'New Customer')
+@section('title', isset($customer) ? 'Edit Client' : 'New Client')
 @section('breadcrumb')
-  <a href="{{ route('customers.index') }}" style="color:#8b5cf6;text-decoration:none">Customers</a> /
+  <a href="{{ route('customers.index') }}" style="color:#8b5cf6;text-decoration:none">Clients</a> /
   {{ isset($customer) ? 'Edit' : 'New' }}
 @endsection
 
 @section('content')
 <div style="max-width:700px">
-  <h1 class="page-title" style="margin-bottom:24px">{{ isset($customer) ? 'Edit Customer' : 'Add Customer' }}</h1>
+  <h1 class="page-title" style="margin-bottom:24px">{{ isset($customer) ? 'Edit Client' : 'Add Client' }}</h1>
 
   <div class="card">
     <div class="card-body">
@@ -19,7 +19,7 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
-            <label class="form-label">Customer Code <span style="color:#ef4444">*</span></label>
+            <label class="form-label">Client Code <span style="color:#ef4444">*</span></label>
             <input type="text" name="customer_code" class="form-control {{ $errors->has('customer_code') ? 'error' : '' }}"
                    value="{{ old('customer_code', $customer->customer_code ?? '') }}" placeholder="e.g. CUST-001" required>
             @error('customer_code') <span class="form-error">{{ $message }}</span> @enderror
@@ -82,7 +82,7 @@
 
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn btn-primary">
-            {{ isset($customer) ? 'Update Customer' : 'Create Customer' }}
+            {{ isset($customer) ? 'Update Client' : 'Create Client' }}
           </button>
           <a href="{{ route('customers.index') }}" class="btn btn-secondary">Cancel</a>
         </div>

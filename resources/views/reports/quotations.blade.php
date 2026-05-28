@@ -80,7 +80,7 @@
   <div class="card-header"><span style="font-weight:700">All Quotations</span></div>
   <div class="table-wrapper">
     <table class="table">
-      <thead><tr><th>Number</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+      <thead><tr><th>Number</th><thClient</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
       <tbody>
         @forelse($quotations as $q)
         <tr>

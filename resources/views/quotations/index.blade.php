@@ -29,7 +29,7 @@
   <div class="table-wrapper">
     <table class="table">
       <thead>
-        <tr><th>Quotation #</th><th>Customer</th><th>Date</th><th>Valid Until</th><th>Total</th><th>Status</th><th style="text-align:right">Actions</th></tr>
+        <tr><th>Quotation #</th><thClient</th><th>Date</th><th>Valid Until</th><th>Total</th><th>Status</th><th style="text-align:right">Actions</th></tr>
       </thead>
       <tbody>
         @forelse($quotations as $q)

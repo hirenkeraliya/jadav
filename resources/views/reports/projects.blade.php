@@ -24,7 +24,7 @@
       <thead>
         <tr>
           <th>Project</th>
-          <th>Customer</th>
+          <thClient</th>
           <th>Status</th>
           <th>Priority</th>
           <th>Start Date</th>

@@ -63,7 +63,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ $company->customers->count() }}</div>
-        <div class="stat-label">Customers</div>
+        <div class="stat-label"Clients</div>
       </div>
     </div>
   </div>

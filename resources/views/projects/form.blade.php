@@ -39,11 +39,11 @@
           </div>
         </div>
 
-        <div style="margin-bottom:16px" x-data="quickCustomer()">
-            <label class="form-label">Customer <span style="color:#ef4444">*</span></label>
+        <div style="margin-bottom:16px" x-data="quickClient()">
+            <label class="form-label">Client <span style="color:#ef4444">*</span></label>
             <div style="display:flex;gap:8px;align-items:center">
               <select name="customer_id" id="customer_id_select" class="form-control {{ $errors->has('customer_id') ? 'error' : '' }}" required style="flex:1">
-                <option value="">— Select Customer —</option>
+                <option value="">— Select Client —</option>
                 @foreach($customers as $c)
                   <option value="{{ $c->id }}" {{ old('customer_id', $project->customer_id ?? request('customer_id')) == $c->id ? 'selected' : '' }}>
                     {{ $c->name }}{{ $c->organization ? ' ('.$c->organization.')' : '' }}
@@ -52,7 +52,7 @@
               </select>
               <button type="button" @click="open = true"
                       style="white-space:nowrap;padding:0 14px;height:38px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;flex-shrink:0">
-                + New Customer
+                + New Client
               </button>
             </div>
             @error('customer_id') <span class="form-error">{{ $message }}</span> @enderror
@@ -65,13 +65,13 @@
                 <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">
                 <div style="background:#fff;border-radius:12px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2)" @click.stop>
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <h3 style="margin:0;font-size:1rem;font-weight:700;color:#1e1b4b">Quick Add Customer</h3>
+                    <h3 style="margin:0;font-size:1rem;font-weight:700;color:#1e1b4b">Quick Add Client</h3>
                     <button type="button" @click="open = false" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:#9ca3af;line-height:1">&times;</button>
                   </div>
 
                   <div style="margin-bottom:14px">
                     <label class="form-label">Name <span style="color:#ef4444">*</span></label>
-                    <input type="text" x-model="form.name" class="form-control" placeholder="Customer name" @keydown.enter.prevent>
+                    <input type="text" x-model="form.name" class="form-control" placeholder="Client name" @keydown.enter.prevent>
                     <span x-show="errors.name" x-text="errors.name" class="form-error"></span>
                   </div>
                   <div style="margin-bottom:14px">
@@ -99,7 +99,7 @@
                     <button type="button" @click="save()" :disabled="saving"
                             style="padding:8px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600"
                             :style="saving ? 'opacity:0.7;cursor:not-allowed' : ''">
-                      <span x-text="saving ? 'Saving…' : 'Add Customer'"></span>
+                      <span x-text="saving ? 'Saving…' : 'Add Client'"></span>
                     </button>
                   </div>
                 </div>
@@ -110,7 +110,7 @@
 
         @push('scripts')
         <script>
-        function quickCustomer() {
+        function quickClient() {
             return {
                 open: false,
                 saving: false,

@@ -9,7 +9,7 @@
 <div class="page-header">
   <div>
     <div style="margin-bottom:8px">
-      <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1rem;font-weight:800;letter-spacing:0.04em;padding:4px 14px;border-radius:8px">{{ $project->project_code }}</span>
+      <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1.5rem;font-weight:800;letter-spacing:0.06em;padding:6px 18px;border-radius:10px">{{ $project->project_code }}</span>
     </div>
     <h1 class="page-title">{{ $project->name }}</h1>
     <div style="display:flex;align-items:center;gap:8px;margin-top:6px">

@@ -10,7 +10,7 @@
   <div>
     @if($customer->customer_code)
     <div style="margin-bottom:8px">
-      <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1rem;font-weight:800;letter-spacing:0.04em;padding:4px 14px;border-radius:8px">{{ $customer->customer_code }}</span>
+      <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1.5rem;font-weight:800;letter-spacing:0.06em;padding:6px 18px;border-radius:10px">{{ $customer->customer_code }}</span>
     </div>
     @endif
     <h1 class="page-title">{{ $customer->name }}</h1>

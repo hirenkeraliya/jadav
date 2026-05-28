@@ -68,7 +68,7 @@
         @forelse($projects as $project)
         <tr>
           <td>
-            <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:0.8rem;font-weight:800;letter-spacing:0.04em;padding:2px 9px;border-radius:6px;margin-bottom:4px">{{ $project->project_code }}</span>
+            <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:0.95rem;font-weight:800;letter-spacing:0.05em;padding:3px 10px;border-radius:6px;margin-bottom:5px">{{ $project->project_code }}</span>
             <div><a href="{{ route('projects.show', $project) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $project->name }}</a></div>
           </td>
           <td>{{ $project->customer->name ?? '—' }}</td>

@@ -12,8 +12,58 @@
       <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1.5rem;font-weight:800;letter-spacing:0.06em;padding:6px 18px;border-radius:10px">{{ $project->project_code }}</span>
     </div>
     <h1 class="page-title">{{ $project->name }}</h1>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+
+      {{-- Status: clickable dropdown for users with permission, static badge otherwise --}}
+      @can('projects.change_status')
+      @php
+        $allStatuses = ['pending','running','on_hold','delayed','completed','invoiced','cancelled','quotation'];
+        $statusColors = [
+          'pending'   => ['bg'=>'#ede9fe','color'=>'#5b21b6'],
+          'running'   => ['bg'=>'#d1fae5','color'=>'#065f46'],
+          'on_hold'   => ['bg'=>'#ffedd5','color'=>'#9a3412'],
+          'delayed'   => ['bg'=>'#fee2e2','color'=>'#991b1b'],
+          'completed' => ['bg'=>'#dbeafe','color'=>'#1e40af'],
+          'invoiced'  => ['bg'=>'#f5f3ff','color'=>'#5b21b6'],
+          'cancelled' => ['bg'=>'#f3f4f6','color'=>'#6b7280'],
+          'quotation' => ['bg'=>'#fef3c7','color'=>'#92400e'],
+        ];
+      @endphp
+      <div x-data="{ open: false }" style="position:relative">
+        <button type="button" @click="open = !open" @keydown.escape.window="open = false"
+                style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;border:2px solid {{ $statusColors[$project->status]['color'] ?? '#6b7280' }};background:{{ $statusColors[$project->status]['bg'] ?? '#f3f4f6' }};color:{{ $statusColors[$project->status]['color'] ?? '#6b7280' }};cursor:pointer">
+          {{ ucfirst(str_replace('_',' ',$project->status)) }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :style="open ? 'transform:rotate(180deg)' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        <div x-show="open" x-cloak @click.outside="open = false"
+             style="position:absolute;top:calc(100% + 6px);left:0;z-index:50;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:180px;padding:6px">
+          @foreach($allStatuses as $s)
+          @if($s !== $project->status)
+          <form method="POST" action="{{ route('projects.change-status', $project) }}">
+            @csrf @method('PATCH')
+            <input type="hidden" name="status" value="{{ $s }}">
+            <button type="submit" @click="open = false"
+                    style="display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;border-radius:7px;font-size:0.85rem;color:#374151;text-align:left"
+                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+              <span style="width:10px;height:10px;border-radius:50%;background:{{ $statusColors[$s]['color'] ?? '#6b7280' }};flex-shrink:0"></span>
+              {{ ucfirst(str_replace('_',' ',$s)) }}
+            </button>
+          </form>
+          @else
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:7px;background:#f9fafb;font-size:0.85rem;font-weight:700;color:{{ $statusColors[$s]['color'] ?? '#6b7280' }}">
+            <span style="width:10px;height:10px;border-radius:50%;background:{{ $statusColors[$s]['color'] ?? '#6b7280' }};flex-shrink:0"></span>
+            {{ ucfirst(str_replace('_',' ',$s)) }}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-left:auto"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          @endif
+          @endforeach
+        </div>
+      </div>
+      @else
       <span class="badge badge-{{ $project->status }}">{{ ucfirst(str_replace('_',' ',$project->status)) }}</span>
+      @endcan
+
       <span class="badge badge-{{ $project->priority }}">{{ ucfirst($project->priority) }} Priority</span>
       @foreach($project->projectTypes as $pt)
         <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:20px">

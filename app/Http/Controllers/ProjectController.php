@@ -152,6 +152,20 @@ class ProjectController extends Controller
         return redirect()->route('projects.show', $project)->with('success', 'Project updated.');
     }
 
+    public function changeStatus(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        abort_unless(auth()->user()->can('projects.change_status'), 403);
+
+        $request->validate([
+            'status' => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+        ]);
+
+        $project->update(['status' => $request->status]);
+
+        return back()->with('success', 'Project status updated to ' . ucfirst(str_replace('_', ' ', $request->status)) . '.');
+    }
+
     public function destroy(Project $project): RedirectResponse
     {
         $this->authorizeCompany($project);

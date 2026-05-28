@@ -14,7 +14,7 @@ class PermissionSeeder extends Seeder
      */
     public static array $permissions = [
         'customers'  => ['view', 'create', 'edit', 'delete'],
-        'projects'   => ['view', 'create', 'edit', 'delete'],
+        'projects'   => ['view', 'create', 'edit', 'delete', 'change_status'],
         'tasks'      => ['view', 'create', 'edit', 'delete'],
         'finance'    => ['view', 'create', 'edit', 'delete'],
         'variations' => ['view', 'create', 'edit', 'delete'],
@@ -55,7 +55,7 @@ class PermissionSeeder extends Seeder
         $staff->syncPermissions(
             Permission::whereIn('name', [
                 'customers.view', 'customers.create', 'customers.edit',
-                'projects.view', 'projects.create', 'projects.edit',
+                'projects.view', 'projects.create', 'projects.edit', 'projects.change_status',
                 'tasks.view', 'tasks.create', 'tasks.edit', 'tasks.delete',
                 'finance.view', 'finance.create',
                 'variations.view', 'variations.create',

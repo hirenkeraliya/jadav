@@ -168,6 +168,24 @@ class ProjectController extends Controller
         return back()->with('success', 'Project status updated to ' . ucfirst(str_replace('_', ' ', $request->status)) . '.');
     }
 
+    public function updateWork(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeCompany($project);
+        abort_unless(auth()->user()->can('projects.edit'), 403);
+
+        $request->validate([
+            'extra_work' => ['nullable', 'string'],
+            'less_work'  => ['nullable', 'string'],
+        ]);
+
+        $project->update([
+            'extra_work' => $request->extra_work,
+            'less_work'  => $request->less_work,
+        ]);
+
+        return back()->with('success', 'Extra / Less work updated.');
+    }
+
     public function destroy(Project $project): RedirectResponse
     {
         $this->authorizeCompany($project);

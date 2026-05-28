@@ -16,7 +16,7 @@ class Project extends Model
     protected $fillable = [
         'company_id', 'project_code', 'name', 'customer_id',
         'location', 'site_address', 'start_date', 'end_date', 'lead_by',
-        'scope_of_work', 'status', 'priority',
+        'scope_of_work', 'extra_work', 'less_work', 'status', 'priority',
         'internal_notes', 'quotation_id',
     ];
 

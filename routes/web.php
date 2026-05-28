@@ -60,6 +60,7 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     // Projects
     Route::resource('projects', ProjectController::class);
     Route::patch('projects/{project}/status', [ProjectController::class, 'changeStatus'])->name('projects.change-status');
+    Route::patch('projects/{project}/work', [ProjectController::class, 'updateWork'])->name('projects.update-work');
     Route::get('projects/{project}/pdf', [ProjectController::class, 'pdf'])->name('projects.pdf');
     // Project Completion (invoice + payment tracking)
     Route::get('projects/{project}/complete',                    [ProjectCompletionController::class, 'create'])->name('projects.complete.create');

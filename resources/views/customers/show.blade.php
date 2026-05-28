@@ -9,7 +9,10 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">{{ $customer->name }}</h1>
-    <p class="page-subtitle">{{ $customer->organization ?? 'Individual Client' }}</p>
+    <p class="page-subtitle">
+      @if($customer->customer_code)<span style="color:#8b5cf6;font-weight:600">{{ $customer->customer_code }}</span> &mdash; @endif
+      {{ $customer->organization ?? 'Individual Client' }}
+    </p>
   </div>
   <div style="display:flex;gap:8px">
     <a href="{{ route('customers.edit', $customer) }}" class="btn btn-secondary">Edit</a>

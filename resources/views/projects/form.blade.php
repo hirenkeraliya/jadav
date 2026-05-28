@@ -24,12 +24,20 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
+            <label class="form-label">Project Code <span style="color:#ef4444">*</span></label>
+            <input type="text" name="project_code" class="form-control {{ $errors->has('project_code') ? 'error' : '' }}"
+                   value="{{ old('project_code', $project->project_code ?? '') }}" required placeholder="e.g. PRJ-0001">
+            @error('project_code') <span class="form-error">{{ $message }}</span> @enderror
+          </div>
+          <div>
             <label class="form-label">Project Name <span style="color:#ef4444">*</span></label>
             <input type="text" name="name" class="form-control {{ $errors->has('name') ? 'error' : '' }}"
                    value="{{ old('name', $project->name ?? '') }}" required>
             @error('name') <span class="form-error">{{ $message }}</span> @enderror
           </div>
-          <div>
+        </div>
+
+        <div style="margin-bottom:16px">
             <label class="form-label">Customer <span style="color:#ef4444">*</span></label>
             <select name="customer_id" class="form-control {{ $errors->has('customer_id') ? 'error' : '' }}" required>
               <option value="">— Select Customer —</option>
@@ -39,7 +47,6 @@
                 </option>
               @endforeach
             </select>
-          </div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">

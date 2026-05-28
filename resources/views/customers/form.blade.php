@@ -17,29 +17,43 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
+            <label class="form-label">Customer Code</label>
+            <input type="text" name="customer_code" class="form-control {{ $errors->has('customer_code') ? 'error' : '' }}"
+                   value="{{ old('customer_code', $customer->customer_code ?? '') }}" placeholder="e.g. CUST-001">
+            @error('customer_code') <span class="form-error">{{ $message }}</span> @enderror
+          </div>
+          <div>
             <label class="form-label">Full Name <span style="color:#ef4444">*</span></label>
             <input type="text" name="name" class="form-control {{ $errors->has('name') ? 'error' : '' }}"
                    value="{{ old('name', $customer->name ?? '') }}" required>
             @error('name') <span class="form-error">{{ $message }}</span> @enderror
           </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
             <label class="form-label">Organization</label>
             <input type="text" name="organization" class="form-control"
                    value="{{ old('organization', $customer->organization ?? '') }}">
           </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
             <label class="form-label">Email</label>
             <input type="email" name="email" class="form-control {{ $errors->has('email') ? 'error' : '' }}"
                    value="{{ old('email', $customer->email ?? '') }}">
             @error('email') <span class="form-error">{{ $message }}</span> @enderror
           </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
             <label class="form-label">Mobile</label>
             <input type="text" name="mobile" class="form-control"
                    value="{{ old('mobile', $customer->mobile ?? '') }}">
+          </div>
+          <div>
+            <label class="form-label">Source</label>
+            <input type="text" name="source" class="form-control" placeholder="Referral, Social Media..."
+                   value="{{ old('source', $customer->source ?? '') }}">
           </div>
         </div>
 
@@ -49,11 +63,6 @@
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-          <div>
-            <label class="form-label">Source</label>
-            <input type="text" name="source" class="form-control" placeholder="Referral, Social Media..."
-                   value="{{ old('source', $customer->source ?? '') }}">
-          </div>
           <div>
             <label class="form-label">Status</label>
             <select name="status" class="form-control">

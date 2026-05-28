@@ -25,24 +25,6 @@ class Project extends Model
         'estimated_amount' => 'decimal:2',
     ];
 
-    public static function generateCode(int $companyId): string
-    {
-        $last = static::where('company_id', $companyId)
-            ->withTrashed()
-            ->where('project_code', 'like', 'PRJ-%')
-            ->orderByRaw("CAST(SUBSTR(project_code, 5) AS INTEGER) DESC")
-            ->value('project_code');
-
-        $next = $last ? ((int) substr($last, 4)) + 1 : 1;
-
-        // Ensure uniqueness including soft-deleted rows (unique constraint applies to all rows)
-        while (static::withTrashed()->where('project_code', 'PRJ-' . str_pad($next, 4, '0', STR_PAD_LEFT))->exists()) {
-            $next++;
-        }
-
-        return 'PRJ-' . str_pad($next, 4, '0', STR_PAD_LEFT);
-    }
-
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

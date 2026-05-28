@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ScopedToCompany;
 use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
@@ -42,6 +43,7 @@ class CustomerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'customer_code' => ['nullable', 'string', 'max:50', Rule::unique('customers', 'customer_code')],
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['nullable', 'email', 'max:255'],
             'mobile'       => ['nullable', 'string', 'max:20'],
@@ -84,6 +86,7 @@ class CustomerController extends Controller
         $this->authorizeCompany($customer);
 
         $data = $request->validate([
+            'customer_code' => ['nullable', 'string', 'max:50', Rule::unique('customers', 'customer_code')->ignore($customer->id)],
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['nullable', 'email', 'max:255'],
             'mobile'       => ['nullable', 'string', 'max:20'],

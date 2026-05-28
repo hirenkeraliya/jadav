@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
@@ -56,6 +57,7 @@ class ProjectController extends Controller
     {
         $cid = $this->companyId();
         $data = $request->validate([
+            'project_code'     => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')],
             'name'             => ['required', 'string', 'max:255'],
             'customer_id'      => ['required', 'exists:customers,id'],
             'project_type_id'  => ['nullable', 'exists:project_types,id'],
@@ -72,8 +74,7 @@ class ProjectController extends Controller
         ]);
 
         $project = Project::create(array_merge($data, [
-            'company_id'   => $cid,
-            'project_code' => Project::generateCode($cid),
+            'company_id' => $cid,
         ]));
 
         // Save custom fields
@@ -120,6 +121,7 @@ class ProjectController extends Controller
         $cid = $this->companyId();
 
         $data = $request->validate([
+            'project_code'     => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')->ignore($project->id)],
             'name'             => ['required', 'string', 'max:255'],
             'customer_id'      => ['required', 'exists:customers,id'],
             'project_type_id'  => ['nullable', 'exists:project_types,id'],

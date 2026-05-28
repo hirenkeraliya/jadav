@@ -53,6 +53,9 @@
             <a href="{{ route('customers.show', $customer) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">
               {{ $customer->name }}
             </a>
+            @if($customer->customer_code)
+              <div style="font-size:0.72rem;color:#8b5cf6;font-weight:600;margin-top:2px">{{ $customer->customer_code }}</div>
+            @endif
             @if($customer->source)
               <div style="font-size:0.72rem;color:#9ca3af;margin-top:1px">Source: {{ $customer->source }}</div>
             @endif

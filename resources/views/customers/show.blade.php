@@ -62,29 +62,37 @@
 
   </div>
 
-  {{-- Projects & Invoices --}}
+  {{-- Projects --}}
   <div>
     <div class="card mb-4">
       <div class="card-header">
-        <span style="font-weight:700">Projects ({{ $customer->projects->count() }})</span>
+        <span style="font-weight:700">Projects ({{ $projects->total() }})</span>
         <a href="{{ route('projects.create') }}?customer_id={{ $customer->id }}" class="btn btn-secondary btn-sm">+ Project</a>
       </div>
       <div class="table-wrapper">
         <table class="table">
-          <thead><tr><th>Name</th><th>Status</th><th>End Date</th></tr></thead>
+          <thead><tr><th>Code</th><th>Name</th><th>Status</th><th>End Date</th><th style="text-align:right">Received</th><th style="text-align:right">Expense</th></tr></thead>
           <tbody>
-            @forelse($customer->projects as $proj)
+            @forelse($projects as $proj)
             <tr>
+              <td><span style="background:#ede9fe;color:#6d28d9;font-size:0.82rem;font-weight:800;padding:2px 8px;border-radius:6px">{{ $proj->project_code }}</span></td>
               <td><a href="{{ route('projects.show', $proj) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $proj->name }}</a></td>
               <td><span class="badge badge-{{ $proj->status }}">{{ ucfirst(str_replace('_',' ',$proj->status)) }}</span></td>
-              <td>{{ $proj->end_date ? $proj->end_date->format('d M Y') : '—' }}</td>
+              <td style="font-size:0.85rem;color:#6b7280">{{ $proj->end_date ? $proj->end_date->format('d M Y') : '—' }}</td>
+              <td style="text-align:right;color:#10b981;font-weight:600;font-size:0.85rem">{{ $activeCompany->currency_symbol }}{{ number_format($proj->total_received ?? 0, 0) }}</td>
+              <td style="text-align:right;color:#ef4444;font-weight:600;font-size:0.85rem">{{ $activeCompany->currency_symbol }}{{ number_format($proj->total_expense ?? 0, 0) }}</td>
             </tr>
             @empty
-            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:20px">No projects yet</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:20px">No projects yet</td></tr>
             @endforelse
           </tbody>
         </table>
       </div>
+      @if($projects->hasPages())
+      <div style="padding:14px 20px;border-top:1px solid #f3f4f6">
+        {{ $projects->links() }}
+      </div>
+      @endif
     </div>
 
   </div>

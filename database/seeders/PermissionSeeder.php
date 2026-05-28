@@ -17,8 +17,8 @@ class PermissionSeeder extends Seeder
         'projects'   => ['view', 'create', 'edit', 'delete'],
         'tasks'      => ['view', 'create', 'edit', 'delete'],
         'finance'    => ['view', 'create', 'edit', 'delete'],
+        'variations' => ['view', 'create', 'edit', 'delete'],
         'quotations' => ['view', 'create', 'edit', 'delete'],
-        'invoices'   => ['view', 'create', 'edit', 'delete'],
         'reports'    => ['view'],
         'settings'   => ['view', 'edit'],
         'users'      => ['view', 'create', 'edit', 'delete'],
@@ -57,8 +57,9 @@ class PermissionSeeder extends Seeder
                 'customers.view', 'customers.create', 'customers.edit',
                 'projects.view', 'projects.create', 'projects.edit',
                 'tasks.view', 'tasks.create', 'tasks.edit', 'tasks.delete',
+                'finance.view', 'finance.create',
+                'variations.view', 'variations.create',
                 'quotations.view', 'quotations.create', 'quotations.edit',
-                'invoices.view',
                 'reports.view',
             ])->get()
         );

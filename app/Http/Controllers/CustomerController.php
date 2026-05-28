@@ -63,17 +63,14 @@ class CustomerController extends Controller
     public function show(Customer $customer): View
     {
         $this->authorizeCompany($customer);
-        $customer->load(['projects.financeEntries']);
 
-        $ledger = $customer->projects->map(function ($project) {
-            return [
-                'project'  => $project,
-                'received' => $project->financeEntries->where('type', 'credit')->sum('amount'),
-                'expense'  => $project->financeEntries->where('type', 'debit')->sum('amount'),
-            ];
-        });
+        $projects = $customer->projects()
+            ->withSum(['financeEntries as total_received' => fn($q) => $q->where('type', 'credit')], 'amount')
+            ->withSum(['financeEntries as total_expense'  => fn($q) => $q->where('type', 'debit')], 'amount')
+            ->latest()
+            ->paginate(15);
 
-        return view('customers.show', compact('customer', 'ledger'));
+        return view('customers.show', compact('customer', 'projects'));
     }
 
     public function edit(Customer $customer): View

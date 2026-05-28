@@ -92,7 +92,7 @@ class ProjectController extends Controller
     public function show(Project $project): View
     {
         $this->authorizeCompany($project);
-        $project->load(['customer', 'projectTypes', 'leadBy', 'files', 'tasks.assignee', 'quotation', 'completion.items', 'completion.payments.recorder']);
+        $project->load(['customer', 'projectTypes', 'leadBy', 'files', 'tasks.assignee', 'quotation', 'completion.items']);
 
         $cid = $this->companyId();
         $financeEntries = $project->financeEntries()->with(['entryType', 'paymentType', 'recorder'])->latest('date')->get();

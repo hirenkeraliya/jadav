@@ -66,8 +66,6 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     Route::post('projects/{project}/complete',                   [ProjectCompletionController::class, 'store'])->name('projects.complete.store');
     Route::get('projects/{project}/completion/edit',             [ProjectCompletionController::class, 'edit'])->name('projects.completion.edit');
     Route::put('projects/{project}/completion',                  [ProjectCompletionController::class, 'update'])->name('projects.completion.update');
-    Route::post('projects/{project}/completion/payment',         [ProjectCompletionController::class, 'storePayment'])->name('projects.completion.payment');
-    Route::delete('projects/{project}/completion/payment/{payment}', [ProjectCompletionController::class, 'destroyPayment'])->name('projects.completion.payment.destroy');
     Route::get('projects/{project}/completion/pdf',              [ProjectCompletionController::class, 'pdf'])->name('projects.completion.pdf');
     Route::post('projects/{project}/files', [ProjectController::class, 'uploadFile'])->name('projects.files.upload');
     Route::delete('projects/{project}/files/{file}', [ProjectController::class, 'deleteFile'])->name('projects.files.delete');

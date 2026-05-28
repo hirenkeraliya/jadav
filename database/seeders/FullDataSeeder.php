@@ -10,7 +10,6 @@ use App\Models\PaymentType;
 use App\Models\Project;
 use App\Models\ProjectCompletion;
 use App\Models\ProjectCompletionItem;
-use App\Models\ProjectCompletionPayment;
 use App\Models\ProjectType;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
@@ -392,10 +391,7 @@ class FullDataSeeder extends Seeder
             ProjectCompletionItem::create(['completion_id' => $completionHorizon->id, 'description' => 'Bar Counter & Back Bar',               'qty' => 1,    'rate' => 280000, 'amount' => 280000,  'sort_order' => 5]);
             ProjectCompletionItem::create(['completion_id' => $completionHorizon->id, 'description' => 'Variation — Outdoor Seating Addition', 'qty' => 1,    'rate' => 180000, 'amount' => 180000,  'sort_order' => 6]);
             ProjectCompletionItem::create(['completion_id' => $completionHorizon->id, 'description' => 'Less: Bar Counter Omission Variation', 'qty' => 1,    'rate' => -60000, 'amount' => -60000,  'sort_order' => 7]);
-
-            ProjectCompletionPayment::create(['completion_id' => $completionHorizon->id, 'amount' => 1500000, 'date' => '2025-10-05', 'reference' => 'RTGS-2025-101', 'notes' => 'Mobilisation advance',    'recorded_by' => $admin->id]);
-            ProjectCompletionPayment::create(['completion_id' => $completionHorizon->id, 'amount' => 2000000, 'date' => '2026-02-20', 'reference' => 'RTGS-2026-045', 'notes' => 'Progress payment 2nd',   'recorded_by' => $admin->id]);
-            ProjectCompletionPayment::create(['completion_id' => $completionHorizon->id, 'amount' => 1692000, 'date' => '2026-04-15', 'reference' => 'RTGS-2026-089', 'notes' => 'Final settlement',       'recorded_by' => $admin->id]);
+            // Payments for this completion are recorded as project credit finance entries above.
         }
 
         $this->command->info('Full demo data seeded successfully.');

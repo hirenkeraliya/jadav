@@ -356,100 +356,49 @@
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+  <div style="padding:16px 20px">
     {{-- Line items --}}
-    <div style="padding:16px 20px;border-right:1px solid #f3f4f6">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:10px">Line Items</div>
-      <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-        <thead>
-          <tr style="border-bottom:1px solid #f3f4f6">
-            <th style="text-align:left;padding:4px 0;font-weight:600;color:#6b7280">Description</th>
-            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Qty</th>
-            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Rate</th>
-            <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($c->items as $item)
-          <tr style="border-bottom:1px solid #f9fafb">
-            <td style="padding:6px 0">{{ $item->description }}</td>
-            <td style="text-align:right;padding:6px 0">{{ $item->qty }}</td>
-            <td style="text-align:right;padding:6px 0">{{ $activeCompany->currency_symbol }}{{ number_format($item->rate, 0) }}</td>
-            <td style="text-align:right;padding:6px 0;font-weight:600">{{ $activeCompany->currency_symbol }}{{ number_format($item->amount, 0) }}</td>
-          </tr>
-          @endforeach
-        </tbody>
-      </table>
-      <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:2px solid #1e1b4b;font-weight:800">
-        <span>Invoice Total</span>
-        <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->total, 0) }}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;color:#10b981;font-weight:600">
-        <span>Received</span>
-        <span>- {{ $activeCompany->currency_symbol }}{{ number_format($c->paid_amount, 0) }}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:8px;border-top:1px solid #f3f4f6;font-weight:800;color:#ef4444">
-        <span>Due</span>
-        <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->due_amount, 0) }}</span>
-      </div>
-    </div>
+    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:10px">Line Items</div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+      <thead>
+        <tr style="border-bottom:1px solid #f3f4f6">
+          <th style="text-align:left;padding:4px 0;font-weight:600;color:#6b7280">Description</th>
+          <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Qty</th>
+          <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Rate</th>
+          <th style="text-align:right;padding:4px 0;font-weight:600;color:#6b7280">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($c->items as $item)
+        <tr style="border-bottom:1px solid #f9fafb">
+          <td style="padding:6px 0">{{ $item->description }}</td>
+          <td style="text-align:right;padding:6px 0">{{ $item->qty }}</td>
+          <td style="text-align:right;padding:6px 0">{{ $activeCompany->currency_symbol }}{{ number_format($item->rate, 0) }}</td>
+          <td style="text-align:right;padding:6px 0;font-weight:600">{{ $activeCompany->currency_symbol }}{{ number_format($item->amount, 0) }}</td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
 
-    {{-- Payments --}}
-    <div style="padding:16px 20px">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#8b5cf6;margin-bottom:10px">Payments</div>
-
-      @forelse($c->payments as $pmt)
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f9fafb;font-size:0.85rem">
-        <div>
-          <div style="font-weight:600">{{ $activeCompany->currency_symbol }}{{ number_format($pmt->amount, 0) }}</div>
-          <div style="font-size:0.75rem;color:#9ca3af">{{ $pmt->date->format('d M Y') }}{{ $pmt->reference ? ' · '.$pmt->reference : '' }}</div>
+    {{-- Totals (received is derived from credit finance entries) --}}
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <div style="width:300px">
+        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:2px solid #1e1b4b;font-weight:800">
+          <span>Invoice Total</span>
+          <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->total, 0) }}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:0.75rem;color:#9ca3af">{{ $pmt->recorder?->name }}</span>
-          @can('finance.create')
-          <form method="POST" action="{{ route('projects.completion.payment.destroy', [$project, $pmt]) }}" onsubmit="return confirm('Remove this payment?')">
-            @csrf @method('DELETE')
-            <button type="submit" style="background:none;border:none;cursor:pointer;color:#9ca3af">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </form>
-          @endcan
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem;color:#10b981;font-weight:600">
+          <span>Received (from credit entries)</span>
+          <span>- {{ $activeCompany->currency_symbol }}{{ number_format($c->paid_amount, 0) }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:8px;border-top:1px solid #f3f4f6;font-weight:800;color:#ef4444">
+          <span>Due</span>
+          <span>{{ $activeCompany->currency_symbol }}{{ number_format($c->due_amount, 0) }}</span>
+        </div>
+        <div style="margin-top:10px;font-size:0.72rem;color:#9ca3af;text-align:right">
+          Add a <a href="{{ route('finance.create', $project) }}" style="color:var(--color-primary);text-decoration:none">credit finance entry</a> to record further payments.
         </div>
       </div>
-      @empty
-      <div style="color:#9ca3af;font-size:0.85rem;padding:12px 0">No payments recorded yet.</div>
-      @endforelse
-
-      @can('finance.create')
-      @if($c->payment_status !== 'paid')
-      <form method="POST" action="{{ route('projects.completion.payment', $project) }}" style="margin-top:14px">
-        @csrf
-        <div style="font-size:0.78rem;font-weight:600;color:#374151;margin-bottom:8px">Record Payment</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <div>
-            <label class="form-label" style="font-size:0.72rem">Amount <span style="color:#ef4444">*</span></label>
-            <input type="number" name="amount" class="form-control" step="0.01" min="0.01"
-                   placeholder="{{ number_format($c->due_amount, 0) }}" required>
-          </div>
-          <div>
-            <label class="form-label" style="font-size:0.72rem">Date <span style="color:#ef4444">*</span></label>
-            <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
-          </div>
-        </div>
-        <div style="margin-bottom:8px">
-          <label class="form-label" style="font-size:0.72rem">Reference / Cheque No.</label>
-          <input type="text" name="reference" class="form-control" placeholder="Optional reference">
-        </div>
-        <button type="submit" style="width:100%;padding:8px;background:#10b981;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.85rem">
-          Mark Payment Received
-        </button>
-      </form>
-      @else
-      <div style="margin-top:14px;background:#d1fae5;border-radius:8px;padding:12px;text-align:center;font-size:0.85rem;color:#065f46;font-weight:700">
-        ✓ Fully Paid
-      </div>
-      @endif
-      @endcan
     </div>
   </div>
 

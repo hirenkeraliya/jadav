@@ -30,11 +30,6 @@ class ProjectCompletion extends Model
         return $this->hasMany(ProjectCompletionItem::class, 'completion_id')->orderBy('sort_order');
     }
 
-    public function payments(): HasMany
-    {
-        return $this->hasMany(ProjectCompletionPayment::class, 'completion_id')->latest('date');
-    }
-
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -45,25 +40,36 @@ class ProjectCompletion extends Model
         return $this->belongsTo(TermsTemplate::class);
     }
 
+    // Live-derived: sum of credit finance entries on the project.
+    public function getPaidAmountAttribute(): float
+    {
+        return (float) FinanceEntry::where('project_id', $this->project_id)
+            ->where('type', 'credit')
+            ->sum('amount');
+    }
+
+    public function getPaymentStatusAttribute(): string
+    {
+        $paid  = $this->paid_amount;
+        $total = (float) $this->attributes['total'] ?? 0;
+        return match(true) {
+            $paid <= 0          => 'unpaid',
+            $paid >= $total     => 'paid',
+            default             => 'partial',
+        };
+    }
+
     public function getDueAmountAttribute(): float
     {
-        return max(0, (float) $this->total - (float) $this->paid_amount);
+        return max(0, (float) $this->total - $this->paid_amount);
     }
 
     public function recalculate(): void
     {
-        $subtotal = $this->items()->sum(\DB::raw('qty * rate'));
-        $paid     = $this->payments()->sum('amount');
-        $status   = match(true) {
-            $paid <= 0              => 'unpaid',
-            $paid >= $subtotal      => 'paid',
-            default                 => 'partial',
-        };
+        $subtotal = (float) $this->items()->sum(\DB::raw('qty * rate'));
         $this->update([
-            'subtotal'       => $subtotal,
-            'total'          => $subtotal,
-            'paid_amount'    => $paid,
-            'payment_status' => $status,
+            'subtotal' => $subtotal,
+            'total'    => $subtotal,
         ]);
     }
 

@@ -8,7 +8,6 @@ use App\Models\FinanceEntryType;
 use App\Models\PaymentType;
 use App\Models\Project;
 use App\Models\ProjectCompletion;
-use App\Models\ProjectCompletionPayment;
 use App\Models\TermsTemplate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -167,72 +166,23 @@ class ProjectCompletionController extends Controller
         return redirect()->route('projects.show', $project)->with('success', 'Invoice updated.');
     }
 
-    public function storePayment(Request $request, Project $project): RedirectResponse
-    {
-        $this->authorizeProject($project);
-        abort_unless(auth()->user()->can('finance.create'), 403);
-        $completion = $project->completion;
-        abort_unless($completion, 404);
-
-        $request->validate([
-            'amount'    => ['required', 'numeric', 'min:0.01'],
-            'date'      => ['required', 'date'],
-            'reference' => ['nullable', 'string', 'max:100'],
-            'notes'     => ['nullable', 'string'],
-        ]);
-
-        ProjectCompletionPayment::create([
-            'completion_id' => $completion->id,
-            'amount'        => $request->amount,
-            'date'          => $request->date,
-            'reference'     => $request->reference,
-            'notes'         => $request->notes,
-            'recorded_by'   => auth()->id(),
-        ]);
-
-        // Also record as a credit finance entry for the project ledger
-        FinanceEntry::create([
-            'company_id'  => $this->companyId(),
-            'project_id'  => $project->id,
-            'type'        => 'credit',
-            'amount'      => $request->amount,
-            'date'        => $request->date,
-            'remarks'     => 'Invoice payment: ' . ($request->reference ?: $completion->invoice_number),
-            'recorded_by' => auth()->id(),
-        ]);
-
-        $completion->recalculate();
-
-        return back()->with('success', 'Payment of ' . number_format($request->amount, 2) . ' recorded.');
-    }
-
-    public function destroyPayment(Project $project, ProjectCompletionPayment $payment): RedirectResponse
-    {
-        $this->authorizeProject($project);
-        abort_if($payment->completion->project_id !== $project->id, 403);
-
-        $payment->delete();
-        $project->completion->recalculate();
-
-        return back()->with('success', 'Payment removed.');
-    }
-
     public function pdf(Project $project): Response
     {
         $this->authorizeProject($project);
         $completion = $project->completion;
         abort_unless($completion, 404);
 
-        $completion->load(['items', 'payments.recorder', 'termsTemplate']);
+        $completion->load(['items', 'termsTemplate']);
         $project->load(['customer', 'projectTypes']);
         $company = $this->company();
 
         $financeEntries = $project->financeEntries()->latest('date')->get();
-        $totalReceived  = $financeEntries->where('type', 'credit')->sum('amount');
+        $creditEntries  = $financeEntries->where('type', 'credit')->values();
+        $totalReceived  = $creditEntries->sum('amount');
         $totalExpense   = $financeEntries->where('type', 'debit')->sum('amount');
 
         $pdf = Pdf::loadView('pdf.project-invoice', compact(
-            'project', 'completion', 'company', 'totalReceived', 'totalExpense'
+            'project', 'completion', 'company', 'totalReceived', 'totalExpense', 'creditEntries'
         ))->setPaper('a4');
 
         return $pdf->stream('invoice-' . $completion->invoice_number . '.pdf');

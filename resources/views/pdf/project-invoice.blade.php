@@ -128,19 +128,19 @@
     </div>
   </div>
 
-  {{-- Payments received --}}
-  @if($completion->payments->isNotEmpty())
+  {{-- Payments received (sourced from project credit finance entries) --}}
+  @if($creditEntries->isNotEmpty())
   <div class="payment-section">
     <h3>Payments Received</h3>
     <table>
       <thead><tr><th>Date</th><th>Reference</th><th>Notes</th><th style="text-align:right">Amount</th></tr></thead>
       <tbody>
-        @foreach($completion->payments as $pmt)
+        @foreach($creditEntries as $entry)
         <tr>
-          <td>{{ $pmt->date->format('d M Y') }}</td>
-          <td>{{ $pmt->reference ?: '—' }}</td>
-          <td>{{ $pmt->notes ?: '—' }}</td>
-          <td class="right">{{ $company->currency_symbol }}{{ number_format($pmt->amount, 2) }}</td>
+          <td>{{ $entry->date->format('d M Y') }}</td>
+          <td>{{ $entry->reference_number ?: '—' }}</td>
+          <td>{{ $entry->remarks ?: '—' }}</td>
+          <td class="right">{{ $company->currency_symbol }}{{ number_format($entry->amount, 2) }}</td>
         </tr>
         @endforeach
       </tbody>

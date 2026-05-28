@@ -19,9 +19,9 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
-            <label class="form-label">Customer Code</label>
+            <label class="form-label">Customer Code <span style="color:#ef4444">*</span></label>
             <input type="text" name="customer_code" class="form-control {{ $errors->has('customer_code') ? 'error' : '' }}"
-                   value="{{ old('customer_code', $customer->customer_code ?? '') }}" placeholder="e.g. CUST-001">
+                   value="{{ old('customer_code', $customer->customer_code ?? '') }}" placeholder="e.g. CUST-001" required>
             @error('customer_code') <span class="form-error">{{ $message }}</span> @enderror
           </div>
           <div>
@@ -48,9 +48,10 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
-            <label class="form-label">Mobile</label>
-            <input type="text" name="mobile" class="form-control"
-                   value="{{ old('mobile', $customer->mobile ?? '') }}">
+            <label class="form-label">Mobile <span style="color:#ef4444">*</span></label>
+            <input type="text" name="mobile" class="form-control {{ $errors->has('mobile') ? 'error' : '' }}"
+                   value="{{ old('mobile', $customer->mobile ?? '') }}" required>
+            @error('mobile') <span class="form-error">{{ $message }}</span> @enderror
           </div>
           <div>
             <label class="form-label">Source</label>

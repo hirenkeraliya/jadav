@@ -6,12 +6,24 @@ use App\Http\Controllers\Concerns\ScopedToCompany;
 use App\Models\Staff;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-class StaffController extends Controller
+class StaffController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:payroll.view',   only: ['index', 'show']),
+            new Middleware('can:payroll.create', only: ['create', 'store']),
+            new Middleware('can:payroll.edit',   only: ['edit', 'update']),
+            new Middleware('can:payroll.delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Request $request): View
     {

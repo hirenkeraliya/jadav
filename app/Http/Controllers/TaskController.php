@@ -8,11 +8,23 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class TaskController extends Controller
+class TaskController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:tasks.view',   only: ['index', 'myTasks']),
+            new Middleware('can:tasks.create', only: ['store']),
+            new Middleware('can:tasks.edit',   only: ['update']),
+            new Middleware('can:tasks.delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Project $project): View
     {

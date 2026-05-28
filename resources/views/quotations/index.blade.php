@@ -8,10 +8,12 @@
     <h1 class="page-title">Quotations</h1>
     <p class="page-subtitle">{{ $quotations->total() }} total quotations</p>
   </div>
+  @can('quotations.create')
   <a href="{{ route('quotations.create') }}" class="btn btn-primary">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New Quotation
   </a>
+  @endcan
 </div>
 
 {{-- Stats --}}
@@ -69,17 +71,21 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View
               </a>
               @if($q->status === 'sent')
+                @can('quotations.edit')
                 <a href="{{ route('quotations.edit', $q) }}" class="btn btn-secondary btn-xs">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit
                 </a>
+                @endcan
               @endif
               <a href="{{ route('quotations.pdf', $q) }}" target="_blank" class="btn btn-secondary btn-xs">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
               </a>
               @if($q->status === 'sent' && !$q->project)
+                @can('projects.create')
                 <a href="{{ route('quotations.show', $q) }}" class="btn btn-success btn-xs" title="Convert to Project">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Project
                 </a>
+                @endcan
               @endif
             </div>
           </td>

@@ -7,11 +7,18 @@ use App\Models\FinanceEntry;
 use App\Models\Project;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class ReportController extends Controller
+class ReportController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [new Middleware('can:reports.view')];
+    }
 
     public function index(): View
     {

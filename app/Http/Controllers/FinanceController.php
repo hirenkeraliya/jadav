@@ -10,11 +10,23 @@ use App\Models\PaymentType;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class FinanceController extends Controller
+class FinanceController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:finance.view',   only: ['index']),
+            new Middleware('can:finance.create', only: ['create', 'store']),
+            new Middleware('can:finance.edit',   only: ['edit', 'update']),
+            new Middleware('can:finance.delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Project $project): View
     {

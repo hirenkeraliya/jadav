@@ -89,9 +89,11 @@
     <a href="{{ route('projects.pdf', $project) }}" target="_blank" class="btn btn-secondary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
     </a>
+    @can('projects.edit')
     <a href="{{ route('projects.edit', $project) }}" class="btn btn-secondary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Project
     </a>
+    @endcan
   </div>
 </div>
 
@@ -220,7 +222,9 @@
 <div class="card mb-5">
   <div class="card-header">
     <span style="font-weight:700">Tasks ({{ $project->tasks->count() }})</span>
+    @can('tasks.create')
     <button onclick="document.getElementById('addTaskModal').style.display='flex'" class="btn btn-secondary btn-sm">+ Task</button>
+    @endcan
   </div>
   <div style="max-height:340px;overflow-y:auto">
     @forelse($project->tasks->sortBy('status') as $task)
@@ -290,9 +294,11 @@
 <div class="card mb-5">
   <div class="card-header">
     <span style="font-weight:700">Finance Entries</span>
+    @can('finance.create')
     <a href="{{ route('finance.create', $project) }}" class="btn btn-secondary btn-sm">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Entry
     </a>
+    @endcan
   </div>
   <div class="table-wrapper">
     <table class="table">
@@ -310,9 +316,12 @@
           <td style="color:#ef4444;font-weight:600">{{ $entry->type === 'debit' ? $activeCompany->currency_symbol.number_format($entry->amount, 0) : '' }}</td>
           <td>
             <div style="display:flex;gap:6px;justify-content:flex-end">
+              @can('finance.edit')
               <a href="{{ route('finance.edit', [$project, $entry]) }}" class="btn btn-secondary btn-xs" title="Edit entry">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </a>
+              @endcan
+              @can('finance.delete')
               <form method="POST" action="{{ route('finance.destroy', [$project, $entry]) }}"
                     onsubmit="return confirm('Delete this entry?')">
                 @csrf @method('DELETE')
@@ -320,6 +329,7 @@
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 </button>
               </form>
+              @endcan
             </div>
           </td>
         </tr>
@@ -349,7 +359,9 @@
       <span style="background:{{ $psBadge['bg'] }};color:{{ $psBadge['color'] }};font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:20px">{{ $psBadge['label'] }}</span>
     </div>
     <div style="display:flex;gap:8px">
+      @can('projects.edit')
       <a href="{{ route('projects.completion.edit', $project) }}" class="btn btn-secondary btn-sm">Edit Invoice</a>
+      @endcan
       <a href="{{ route('projects.completion.pdf', $project) }}" target="_blank" class="btn btn-secondary btn-sm">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
       </a>
@@ -414,11 +426,13 @@
 <div class="card mb-5">
   <div class="card-header">
     <span style="font-weight:700">Files ({{ $project->files->count() }})</span>
+    @can('projects.edit')
     <form method="POST" action="{{ route('projects.files.upload', $project) }}" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center">
       @csrf
       <input type="file" name="files[]" multiple style="font-size:0.8rem">
       <button type="submit" class="btn btn-secondary btn-sm">Upload</button>
     </form>
+    @endcan
   </div>
   @if($project->files->isNotEmpty())
   <div style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px">
@@ -431,12 +445,14 @@
         </a>
         <div style="font-size:0.72rem;color:#9ca3af">{{ $file->getFormattedSizeAttribute() }}</div>
       </div>
+      @can('projects.edit')
       <form method="POST" action="{{ route('projects.files.delete', [$project, $file]) }}">
         @csrf @method('DELETE')
         <button type="submit" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </form>
+      @endcan
     </div>
     @endforeach
   </div>

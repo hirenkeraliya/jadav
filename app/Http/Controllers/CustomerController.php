@@ -7,12 +7,24 @@ use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-class CustomerController extends Controller
+class CustomerController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:customers.view',   only: ['index', 'show']),
+            new Middleware('can:customers.create', only: ['create', 'store']),
+            new Middleware('can:customers.edit',   only: ['edit', 'update']),
+            new Middleware('can:customers.delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Request $request): View
     {

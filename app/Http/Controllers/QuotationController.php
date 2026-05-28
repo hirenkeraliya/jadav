@@ -14,11 +14,24 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class QuotationController extends Controller
+class QuotationController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:quotations.view',   only: ['index', 'show', 'pdf']),
+            new Middleware('can:quotations.create', only: ['create', 'store']),
+            new Middleware('can:quotations.edit',   only: ['edit', 'update', 'revise']),
+            new Middleware('can:quotations.delete', only: ['destroy']),
+            new Middleware('can:projects.create',   only: ['convertToProject']),
+        ];
+    }
 
     public function index(Request $request): View
     {

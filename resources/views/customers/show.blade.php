@@ -17,8 +17,12 @@
     <p class="page-subtitle">{{ $customer->organization ?? 'Individual Client' }}</p>
   </div>
   <div style="display:flex;gap:8px">
+    @can('customers.edit')
     <a href="{{ route('customers.edit', $customer) }}" class="btn btn-secondary">Edit</a>
+    @endcan
+    @can('quotations.create')
     <a href="{{ route('quotations.create') }}?customer_id={{ $customer->id }}" class="btn btn-primary">New Quotation</a>
+    @endcan
   </div>
 </div>
 

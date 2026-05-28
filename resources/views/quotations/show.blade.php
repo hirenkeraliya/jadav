@@ -32,10 +32,12 @@
         Convert to Project
       </button>
     @endif
+    @can('quotations.delete')
     <form method="POST" action="{{ route('quotations.destroy', $quotation) }}" onsubmit="return confirm('Delete this quotation?')">
       @csrf @method('DELETE')
       <button type="submit" class="btn btn-danger">Delete</button>
     </form>
+    @endcan
   </div>
 </div>
 

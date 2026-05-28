@@ -7,11 +7,18 @@ use App\Models\PayrollEntry;
 use App\Models\Staff;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class PayrollReportController extends Controller
+class PayrollReportController extends Controller implements HasMiddleware
 {
     use ScopedToCompany;
+
+    public static function middleware(): array
+    {
+        return [new Middleware('can:payroll.view')];
+    }
 
     public function index(Request $request): View
     {

@@ -25,7 +25,7 @@
     <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ number_format($pendingQuotations) }}</div>
   </div>
   <div class="stat-card" style="padding:16px">
-    <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Total Amount</div>
+    <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Total Amount (Sent)</div>
     <div style="font-size:1.4rem;font-weight:800;color:#1e1b4b">{{ $activeCompany->currency_symbol }}{{ number_format($totalAmount, 0) }}</div>
   </div>
   <div class="stat-card" style="padding:16px">

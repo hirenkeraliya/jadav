@@ -37,7 +37,7 @@ class QuotationController extends Controller
         $totalQuotations   = (clone $statsBase)->count();
         $pendingQuotations = (clone $statsBase)->where('status', 'sent')->count();
         $convertedCount    = (clone $statsBase)->where('status', 'converted')->count();
-        $totalAmount       = (clone $statsBase)->sum('total');
+        $totalAmount       = (clone $statsBase)->where('status', 'sent')->sum('total');
         $conversionRatio   = $totalQuotations > 0 ? round(($convertedCount / $totalQuotations) * 100, 1) : 0;
 
         return view('quotations.index', compact(

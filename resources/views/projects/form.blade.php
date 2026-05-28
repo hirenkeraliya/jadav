@@ -178,17 +178,19 @@
         </div>
         @endif
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:{{ isset($project) ? '1fr 1fr' : '1fr' }};gap:16px;margin-bottom:16px">
+          @if(isset($project))
           <div>
             <label class="form-label">Status <span style="color:#ef4444">*</span></label>
             <select name="status" class="form-control" required>
               @foreach(['pending','running','on_hold','delayed','completed','invoiced','cancelled'] as $s)
-                <option value="{{ $s }}" {{ old('status', $project->status ?? 'pending') == $s ? 'selected' : '' }}>
+                <option value="{{ $s }}" {{ old('status', $project->status) == $s ? 'selected' : '' }}>
                   {{ ucfirst(str_replace('_',' ',$s)) }}
                 </option>
               @endforeach
             </select>
           </div>
+          @endif
           <div>
             <label class="form-label">Priority</label>
             <select name="priority" class="form-control">

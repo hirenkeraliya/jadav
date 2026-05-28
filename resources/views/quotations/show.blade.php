@@ -228,8 +228,8 @@
           <div>
             <label class="form-label">Status</label>
             <select name="status" class="form-control">
-              @foreach(['pending','running','on_hold','quotation'] as $s)
-                <option value="{{ $s }}" {{ old('status','pending') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
+              @foreach(['running','pending','on_hold','quotation'] as $s)
+                <option value="{{ $s }}" {{ old('status','running') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
               @endforeach
             </select>
           </div>

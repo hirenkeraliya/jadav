@@ -72,7 +72,6 @@ class ProjectController extends Controller
             'end_date'         => ['required', 'date', 'after_or_equal:start_date'],
             'lead_by'          => ['nullable', 'exists:users,id'],
             'scope_of_work'    => ['nullable', 'string'],
-            'status'           => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
             'priority'         => ['required', 'in:low,medium,high'],
             'internal_notes'   => ['nullable', 'string'],
         ]);
@@ -80,7 +79,10 @@ class ProjectController extends Controller
         $typeIds = $data['project_type_ids'] ?? [];
         unset($data['project_type_ids']);
 
-        $project = Project::create(array_merge($data, ['company_id' => $cid]));
+        $project = Project::create(array_merge($data, [
+            'company_id' => $cid,
+            'status'     => 'running',
+        ]));
         $project->projectTypes()->sync($typeIds);
         $this->saveCustomFields($request, $project, $cid);
 

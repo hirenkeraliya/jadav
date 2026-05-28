@@ -98,6 +98,7 @@
 </div>
 
 {{-- Finance summary bar --}}
+@can('finance.view')
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
   <div class="stat-card" style="padding:16px">
     <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Received</div>
@@ -112,6 +113,7 @@
     <div style="font-size:1.4rem;font-weight:800;color:{{ $profitLoss >= 0 ? '#10b981' : '#ef4444' }}">{{ $profitLoss >= 0 ? '+' : '' }}{{ $activeCompany->currency_symbol }}{{ number_format($profitLoss, 0) }}</div>
   </div>
 </div>
+@endcan
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
   {{-- Project Details --}}
@@ -291,6 +293,7 @@
 @endif
 
 {{-- Finance entries --}}
+@can('finance.view')
 <div class="card mb-5">
   <div class="card-header">
     <span style="font-weight:700">Finance Entries</span>
@@ -340,6 +343,7 @@
     </table>
   </div>
 </div>
+@endcan
 
 {{-- Completion Invoice + Payment Tracking --}}
 @if($project->completion)

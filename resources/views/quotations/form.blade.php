@@ -117,8 +117,8 @@
           <div>
             <label class="form-label">Status</label>
             <select name="status" class="form-control">
-              @foreach(['draft','sent','accepted','rejected','expired','converted'] as $s)
-                <option value="{{ $s }}" {{ old('status', $quotation->status ?? 'draft') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
+              @foreach(['sent' => 'Sent to Client', 'rejected' => 'Rejected', 'converted' => 'Converted'] as $value => $label)
+                <option value="{{ $value }}" {{ old('status', $quotation->status ?? 'sent') == $value ? 'selected' : '' }}>{{ $label }}</option>
               @endforeach
             </select>
           </div>

@@ -114,7 +114,7 @@ class QuotationController extends Controller
             ->where(fn($q) => $q->where('id', $revision->parent_id)->orWhere('parent_id', $revision->parent_id))
             ->count() + 1;
         $revision->quotation_number = $quotation->quotation_number . '-R' . $revision->version;
-        $revision->status = 'draft';
+        $revision->status = 'sent';
         $revision->revised_by = auth()->id();
         $revision->save();
 
@@ -204,7 +204,7 @@ class QuotationController extends Controller
             'tax_label'         => ['nullable', 'string'],
             'tax_rate'          => ['nullable', 'numeric', 'min:0', 'max:100'],
             'notes'             => ['nullable', 'string'],
-            'status'            => ['required', 'in:draft,sent,accepted,rejected,expired,converted'],
+            'status'            => ['required', 'in:sent,rejected,converted'],
             'terms_template_id' => ['nullable', 'exists:terms_templates,id'],
         ]);
 

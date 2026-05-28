@@ -248,7 +248,7 @@ class FullDataSeeder extends Seeder
                 'discount_amount'  => 42500,
                 'tax_amount'       => 145350,
                 'total'            => 952850,
-                'status'           => 'accepted',
+                'status'           => 'sent',
                 'terms_template_id'=> $terms?->id,
                 'notes'            => 'Inclusive of design fees, material supply and installation.',
                 'items' => [
@@ -274,7 +274,7 @@ class FullDataSeeder extends Seeder
                 'discount_amount'  => 100000,
                 'tax_amount'       => 792000,
                 'total'            => 5192000,
-                'status'           => 'accepted',
+                'status'           => 'sent',
                 'terms_template_id'=> $terms?->id,
                 'notes'            => 'All FF&E items as per approved brand specification.',
                 'items' => [

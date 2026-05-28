@@ -55,6 +55,26 @@
       Reports
     </a>
 
+    <div class="nav-group-label">Payroll</div>
+
+    <a href="{{ route('payroll.staff.index') }}"
+       class="nav-item {{ request()->routeIs('payroll.staff.*') ? 'active' : '' }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>
+      Staff
+    </a>
+
+    <a href="{{ route('payroll.entries.index') }}"
+       class="nav-item {{ request()->routeIs('payroll.entries.*') ? 'active' : '' }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Time Entries
+    </a>
+
+    <a href="{{ route('payroll.report.index') }}"
+       class="nav-item {{ request()->routeIs('payroll.report.*') ? 'active' : '' }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>
+      Payroll Report
+    </a>
+
     <div class="nav-group-label">Settings</div>
 
     <a href="{{ route('settings.company') }}"

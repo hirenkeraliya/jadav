@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
         'variations' => ['view', 'create', 'edit', 'delete'],
         'quotations' => ['view', 'create', 'edit', 'delete'],
         'reports'    => ['view'],
+        'payroll'    => ['view', 'create', 'edit', 'delete'],
         'settings'   => ['view', 'edit'],
         'users'      => ['view', 'create', 'edit', 'delete'],
         'roles'      => ['view', 'create', 'edit', 'delete'],
@@ -61,6 +62,7 @@ class PermissionSeeder extends Seeder
                 'variations.view', 'variations.create',
                 'quotations.view', 'quotations.create', 'quotations.edit',
                 'reports.view',
+                'payroll.view',
             ])->get()
         );
 

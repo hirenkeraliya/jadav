@@ -8,6 +8,8 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\PayrollEntryController;
+use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\ProjectCompletionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectVariationController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -100,6 +103,13 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     Route::get('reports/finance', [ReportController::class, 'finance'])->name('reports.finance');
     Route::get('reports/quotations', [ReportController::class, 'quotations'])->name('reports.quotations');
     Route::get('reports/projects', [ReportController::class, 'projects'])->name('reports.projects');
+
+    // Payroll
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+        Route::resource('staff', StaffController::class)->names('staff');
+        Route::resource('entries', PayrollEntryController::class)->names('entries');
+        Route::get('report', [PayrollReportController::class, 'index'])->name('report.index');
+    });
 
     // Settings (super admin or admin role)
     Route::prefix('settings')->name('settings.')->group(function () {

@@ -88,9 +88,9 @@
               $months = (int) floor($left / 30);
               $days   = $left % 30;
               $parts  = [];
-              if ($years)  $parts[] = $years  . ' Yr'  . ($years  > 1 ? 's' : '');
-              if ($months) $parts[] = $months . ' Mo'  . ($months > 1 ? 's' : '');
-              if ($days || empty($parts)) $parts[] = $days . ' Day' . ($days !== 1 ? 's' : '');
+              if ($years)  $parts[] = $years  . ' ' . ($years  > 1 ? 'Years'  : 'Year');
+              if ($months) $parts[] = $months . ' ' . ($months > 1 ? 'Months' : 'Month');
+              if ($days || empty($parts)) $parts[] = $days . ' ' . ($days !== 1 ? 'Days' : 'Day');
               return implode(' ', $parts);
           };
         @endphp

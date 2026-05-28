@@ -65,15 +65,15 @@
           <textarea name="address" class="form-control" rows="2">{{ old('address', $customer->address ?? '') }}</textarea>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-          <div>
-            <label class="form-label">Status</label>
-            <select name="status" class="form-control">
-              <option value="active" {{ old('status', $customer->status ?? 'active') == 'active' ? 'selected' : '' }}>Active</option>
-              <option value="inactive" {{ old('status', $customer->status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-            </select>
-          </div>
+        @if(isset($customer))
+        <div style="margin-bottom:16px">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control" style="max-width:200px">
+            <option value="active"   {{ old('status', $customer->status) == 'active'   ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ old('status', $customer->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+          </select>
         </div>
+        @endif
 
         <div style="margin-bottom:24px">
           <label class="form-label">Notes</label>

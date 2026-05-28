@@ -52,10 +52,12 @@ class CustomerController extends Controller
             'organization' => ['nullable', 'string', 'max:255'],
             'source'       => ['nullable', 'string', 'max:100'],
             'notes'        => ['nullable', 'string'],
-            'status'       => ['required', 'in:active,inactive'],
         ]);
 
-        $customer = Customer::create(array_merge($data, ['company_id' => $this->companyId()]));
+        $customer = Customer::create(array_merge($data, [
+            'company_id' => $this->companyId(),
+            'status'     => 'active',
+        ]));
 
         return redirect()->route('customers.show', $customer)->with('success', 'Customer created successfully.');
     }

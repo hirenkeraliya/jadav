@@ -38,6 +38,9 @@
   .status-partial { background:#fef3c7; color:#92400e; }
   .status-paid    { background:#d1fae5; color:#065f46; }
   .notes-box { background:#f9fafb; border-left:3px solid {{ $company->primary_color ?? '#10b981' }}; padding:8px 12px; font-size:9.5px; color:#374151; margin-bottom:16px; }
+  .terms-box { margin-bottom:16px; }
+  .terms-box h3 { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:{{ $company->primary_color ?? '#10b981' }}; margin-bottom:6px; }
+  .terms-box .terms-content { background:#fafaf9; border:1px solid #e5e7eb; border-radius:4px; padding:8px 12px; font-size:9px; color:#4b5563; line-height:1.55; white-space:pre-wrap; }
   .footer { border-top:1px solid #e5e7eb; padding-top:10px; text-align:center; font-size:9px; color:#9ca3af; margin-top:20px; }
 </style>
 </head>
@@ -147,6 +150,13 @@
 
   @if($completion->notes)
   <div class="notes-box">{{ $completion->notes }}</div>
+  @endif
+
+  @if($completion->termsTemplate)
+  <div class="terms-box">
+    <h3>Terms &amp; Conditions</h3>
+    <div class="terms-content">{{ $completion->termsTemplate->content }}</div>
+  </div>
   @endif
 
   {{-- QR Code + Footer --}}

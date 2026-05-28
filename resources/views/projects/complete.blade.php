@@ -160,6 +160,28 @@
     </div>
   </div>
 
+  {{-- Terms & Conditions --}}
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><span style="font-weight:700">Terms &amp; Conditions</span></div>
+    <div class="card-body">
+      <label class="form-label">Template</label>
+      <select name="terms_template_id" class="form-control" x-model="termsId">
+        <option value="">— None —</option>
+        @foreach($termsTemplates as $t)
+          <option value="{{ $t->id }}">{{ $t->name }}{{ $t->is_default_invoice ? ' (default)' : '' }}</option>
+        @endforeach
+      </select>
+      <div x-show="termsContent()" x-cloak
+           style="margin-top:12px;padding:12px 14px;background:#fafaf9;border:1px solid #e5e7eb;border-radius:10px;font-size:0.82rem;color:#4b5563;line-height:1.6;white-space:pre-wrap"
+           x-text="termsContent()"></div>
+      @if($termsTemplates->isEmpty())
+        <div style="margin-top:10px;font-size:0.8rem;color:#9ca3af">
+          No templates yet. Add one in <a href="{{ route('settings.terms.index') }}" style="color:var(--color-primary);text-decoration:none">Settings → Terms Templates</a>.
+        </div>
+      @endif
+    </div>
+  </div>
+
   {{-- Notes --}}
   <div class="card" style="margin-bottom:24px">
     <div class="card-body">
@@ -189,6 +211,8 @@ function completionForm() {
   return {
     items: [{ description: '', qty: 1, rate: 0 }],
     expenses: [],
+    termsId: '{{ old('terms_template_id', $defaultTermsId) }}',
+    termsMap: @json($termsTemplates->pluck('content', 'id')),
     addItem() {
       this.items.push({ description: '', qty: 1, rate: 0 });
     },
@@ -203,6 +227,9 @@ function completionForm() {
     },
     formatNum(n) {
       return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    },
+    termsContent() {
+      return this.termsId ? (this.termsMap[this.termsId] || '') : '';
     },
   };
 }

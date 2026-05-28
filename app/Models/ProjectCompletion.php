@@ -10,7 +10,8 @@ class ProjectCompletion extends Model
 {
     protected $fillable = [
         'project_id', 'company_id', 'invoice_number',
-        'notes', 'subtotal', 'total', 'paid_amount', 'payment_status', 'created_by',
+        'notes', 'terms_template_id',
+        'subtotal', 'total', 'paid_amount', 'payment_status', 'created_by',
     ];
 
     protected $casts = [
@@ -37,6 +38,11 @@ class ProjectCompletion extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function termsTemplate(): BelongsTo
+    {
+        return $this->belongsTo(TermsTemplate::class);
     }
 
     public function getDueAmountAttribute(): float

@@ -59,6 +59,27 @@
     </div>
 
     <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><span style="font-weight:700">Terms &amp; Conditions</span></div>
+      <div class="card-body">
+        <label class="form-label">Template</label>
+        <select name="terms_template_id" class="form-control" x-model="termsId">
+          <option value="">— None —</option>
+          @foreach($termsTemplates as $t)
+            <option value="{{ $t->id }}">{{ $t->name }}{{ $t->is_default_invoice ? ' (default)' : '' }}</option>
+          @endforeach
+        </select>
+        <div x-show="termsContent()" x-cloak
+             style="margin-top:12px;padding:12px 14px;background:#fafaf9;border:1px solid #e5e7eb;border-radius:10px;font-size:0.82rem;color:#4b5563;line-height:1.6;white-space:pre-wrap"
+             x-text="termsContent()"></div>
+        @if($termsTemplates->isEmpty())
+          <div style="margin-top:10px;font-size:0.8rem;color:#9ca3af">
+            No templates yet. Add one in <a href="{{ route('settings.terms.index') }}" style="color:var(--color-primary);text-decoration:none">Settings → Terms Templates</a>.
+          </div>
+        @endif
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
       <div class="card-body">
         <label class="form-label">Notes</label>
         <textarea name="notes" class="form-control" rows="2">{{ old('notes', $completion->notes) }}</textarea>
@@ -77,9 +98,12 @@
 function editCompletion() {
   return {
     items: @json($completion->items->map(fn($i) => ['description'=>$i->description,'qty'=>(float)$i->qty,'rate'=>(float)$i->rate])),
+    termsId: '{{ old('terms_template_id', $completion->terms_template_id) }}',
+    termsMap: @json($termsTemplates->pluck('content', 'id')),
     addItem() { this.items.push({ description: '', qty: 1, rate: 0 }); },
     total() { return this.items.reduce((s,i) => s + (parseFloat(i.qty)||0)*(parseFloat(i.rate)||0), 0); },
     fmt(n) { return Number(n).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}); },
+    termsContent() { return this.termsId ? (this.termsMap[this.termsId] || '') : ''; },
   };
 }
 </script>

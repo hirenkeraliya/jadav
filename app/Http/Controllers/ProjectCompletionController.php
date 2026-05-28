@@ -9,6 +9,7 @@ use App\Models\PaymentType;
 use App\Models\Project;
 use App\Models\ProjectCompletion;
 use App\Models\ProjectCompletionPayment;
+use App\Models\TermsTemplate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,10 +37,13 @@ class ProjectCompletionController extends Controller
         $entryTypes   = FinanceEntryType::where('company_id', $cid)->where('is_active', true)->get();
         $paymentTypes = PaymentType::where('company_id', $cid)->where('is_active', true)->get();
         $suggestedInvoiceNumber = ProjectCompletion::generateNumber($cid);
+        $termsTemplates  = TermsTemplate::where('company_id', $cid)->orderBy('name')->get();
+        $defaultTermsId  = $termsTemplates->firstWhere('is_default_invoice', true)?->id;
 
         return view('projects.complete', compact(
             'project', 'financeEntries', 'totalReceived', 'totalExpense',
-            'entryTypes', 'paymentTypes', 'suggestedInvoiceNumber'
+            'entryTypes', 'paymentTypes', 'suggestedInvoiceNumber',
+            'termsTemplates', 'defaultTermsId'
         ));
     }
 
@@ -55,6 +59,7 @@ class ProjectCompletionController extends Controller
         $request->validate([
             'invoice_number'         => ['required', 'string', 'max:50', 'unique:project_completions,invoice_number'],
             'notes'                  => ['nullable', 'string'],
+            'terms_template_id'      => ['nullable', 'exists:terms_templates,id'],
             'items'                  => ['required', 'array', 'min:1'],
             'items.*.description'    => ['required', 'string', 'max:500'],
             'items.*.qty'            => ['required', 'numeric', 'min:0.01'],
@@ -85,11 +90,12 @@ class ProjectCompletionController extends Controller
 
         // Create the completion record
         $completion = ProjectCompletion::create([
-            'project_id'  => $project->id,
-            'company_id'  => $cid,
-            'invoice_number' => $request->invoice_number,
-            'notes'       => $request->notes,
-            'created_by'  => auth()->id(),
+            'project_id'        => $project->id,
+            'company_id'        => $cid,
+            'invoice_number'    => $request->invoice_number,
+            'notes'             => $request->notes,
+            'terms_template_id' => $request->terms_template_id,
+            'created_by'        => auth()->id(),
         ]);
 
         foreach ($request->input('items', []) as $i => $item) {
@@ -118,7 +124,8 @@ class ProjectCompletionController extends Controller
         abort_unless($project->completion, 404);
 
         $completion = $project->completion->load('items');
-        return view('projects.completion-edit', compact('project', 'completion'));
+        $termsTemplates = TermsTemplate::where('company_id', $this->companyId())->orderBy('name')->get();
+        return view('projects.completion-edit', compact('project', 'completion', 'termsTemplates'));
     }
 
     public function update(Request $request, Project $project): RedirectResponse
@@ -129,13 +136,17 @@ class ProjectCompletionController extends Controller
 
         $request->validate([
             'notes'               => ['nullable', 'string'],
+            'terms_template_id'   => ['nullable', 'exists:terms_templates,id'],
             'items'               => ['required', 'array', 'min:1'],
             'items.*.description' => ['required', 'string', 'max:500'],
             'items.*.qty'         => ['required', 'numeric', 'min:0.01'],
             'items.*.rate'        => ['required', 'numeric', 'min:0'],
         ]);
 
-        $completion->update(['notes' => $request->notes]);
+        $completion->update([
+            'notes'             => $request->notes,
+            'terms_template_id' => $request->terms_template_id,
+        ]);
         $completion->items()->delete();
 
         foreach ($request->input('items', []) as $i => $item) {
@@ -212,7 +223,7 @@ class ProjectCompletionController extends Controller
         $completion = $project->completion;
         abort_unless($completion, 404);
 
-        $completion->load(['items', 'payments.recorder']);
+        $completion->load(['items', 'payments.recorder', 'termsTemplate']);
         $project->load(['customer', 'projectTypes']);
         $company = $this->company();
 

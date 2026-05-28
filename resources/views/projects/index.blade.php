@@ -53,7 +53,7 @@
       <thead>
         <tr>
           <th>Project</th>
-          <thClient</th>
+          <th>Client</th>
           <th>Type</th>
           <th>Status</th>
           <th>Priority</th>

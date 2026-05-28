@@ -52,7 +52,7 @@
         <thead>
           <tr>
             <th>Project</th>
-            <thClient</th>
+            <th>Client</th>
             <th>Status</th>
             <th>End Date</th>
           </tr>

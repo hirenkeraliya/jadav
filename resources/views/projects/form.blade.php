@@ -37,17 +37,127 @@
           </div>
         </div>
 
-        <div style="margin-bottom:16px">
+        <div style="margin-bottom:16px" x-data="quickCustomer()">
             <label class="form-label">Customer <span style="color:#ef4444">*</span></label>
-            <select name="customer_id" class="form-control {{ $errors->has('customer_id') ? 'error' : '' }}" required>
-              <option value="">— Select Customer —</option>
-              @foreach($customers as $c)
-                <option value="{{ $c->id }}" {{ old('customer_id', $project->customer_id ?? request('customer_id')) == $c->id ? 'selected' : '' }}>
-                  {{ $c->name }}{{ $c->organization ? ' ('.$c->organization.')' : '' }}
-                </option>
-              @endforeach
-            </select>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select name="customer_id" id="customer_id_select" class="form-control {{ $errors->has('customer_id') ? 'error' : '' }}" required style="flex:1">
+                <option value="">— Select Customer —</option>
+                @foreach($customers as $c)
+                  <option value="{{ $c->id }}" {{ old('customer_id', $project->customer_id ?? request('customer_id')) == $c->id ? 'selected' : '' }}>
+                    {{ $c->name }}{{ $c->organization ? ' ('.$c->organization.')' : '' }}
+                  </option>
+                @endforeach
+              </select>
+              <button type="button" @click="open = true"
+                      style="white-space:nowrap;padding:0 14px;height:38px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;flex-shrink:0">
+                + New Customer
+              </button>
+            </div>
+            @error('customer_id') <span class="form-error">{{ $message }}</span> @enderror
+
+            {{-- Quick-add customer modal --}}
+            <template x-teleport="body">
+              <div x-show="open" x-cloak
+                   style="position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.45)"
+                   @keydown.escape.window="open = false">
+                <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">
+                <div style="background:#fff;border-radius:12px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2)" @click.stop>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="margin:0;font-size:1rem;font-weight:700;color:#1e1b4b">Quick Add Customer</h3>
+                    <button type="button" @click="open = false" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:#9ca3af;line-height:1">&times;</button>
+                  </div>
+
+                  <div style="margin-bottom:14px">
+                    <label class="form-label">Name <span style="color:#ef4444">*</span></label>
+                    <input type="text" x-model="form.name" class="form-control" placeholder="Customer name" @keydown.enter.prevent>
+                    <span x-show="errors.name" x-text="errors.name" class="form-error"></span>
+                  </div>
+                  <div style="margin-bottom:14px">
+                    <label class="form-label">Organization</label>
+                    <input type="text" x-model="form.organization" class="form-control" placeholder="Company / organization" @keydown.enter.prevent>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+                    <div>
+                      <label class="form-label">Email</label>
+                      <input type="email" x-model="form.email" class="form-control" placeholder="email@example.com" @keydown.enter.prevent>
+                    </div>
+                    <div>
+                      <label class="form-label">Mobile</label>
+                      <input type="text" x-model="form.mobile" class="form-control" placeholder="+91 …" @keydown.enter.prevent>
+                    </div>
+                  </div>
+
+                  <div x-show="serverError" x-text="serverError" style="color:#ef4444;font-size:0.8rem;margin-bottom:12px"></div>
+
+                  <div style="display:flex;gap:10px;justify-content:flex-end">
+                    <button type="button" @click="open = false"
+                            style="padding:8px 16px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;font-size:0.85rem">
+                      Cancel
+                    </button>
+                    <button type="button" @click="save()" :disabled="saving"
+                            style="padding:8px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600"
+                            :style="saving ? 'opacity:0.7;cursor:not-allowed' : ''">
+                      <span x-text="saving ? 'Saving…' : 'Add Customer'"></span>
+                    </button>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </template>
         </div>
+
+        @push('scripts')
+        <script>
+        function quickCustomer() {
+            return {
+                open: false,
+                saving: false,
+                serverError: '',
+                form: { name: '', organization: '', email: '', mobile: '' },
+                errors: {},
+                save() {
+                    this.errors = {};
+                    this.serverError = '';
+                    if (!this.form.name.trim()) {
+                        this.errors.name = 'Name is required.';
+                        return;
+                    }
+                    this.saving = true;
+                    fetch('{{ route('customers.quick-store') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify(this.form),
+                    })
+                    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                    .then(({ ok, data }) => {
+                        if (!ok) {
+                            if (data.errors) {
+                                this.errors = Object.fromEntries(
+                                    Object.entries(data.errors).map(([k, v]) => [k, v[0]])
+                                );
+                            } else {
+                                this.serverError = data.message || 'Something went wrong.';
+                            }
+                            return;
+                        }
+                        const sel = document.getElementById('customer_id_select');
+                        const opt = new Option(data.label, data.id, true, true);
+                        sel.add(opt);
+                        sel.value = data.id;
+                        this.open = false;
+                        this.form = { name: '', organization: '', email: '', mobile: '' };
+                    })
+                    .catch(() => { this.serverError = 'Network error. Please try again.'; })
+                    .finally(() => { this.saving = false; });
+                },
+            };
+        }
+        </script>
+        @endpush
 
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
           <div>

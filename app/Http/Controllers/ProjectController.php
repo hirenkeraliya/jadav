@@ -9,8 +9,10 @@ use App\Models\Project;
 use App\Models\ProjectFile;
 use App\Models\ProjectType;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -169,6 +171,26 @@ class ProjectController extends Controller
         ]);
 
         return back()->with('success', 'File uploaded.');
+    }
+
+    public function pdf(Project $project): Response
+    {
+        $this->authorizeCompany($project);
+        $project->load(['customer', 'projectType', 'leadBy', 'tasks.assignee', 'quotation']);
+
+        $cid = $this->companyId();
+        $company = $this->company();
+        $financeEntries = $project->financeEntries()->with(['entryType', 'paymentType'])->latest('date')->get();
+        $totalReceived  = $financeEntries->where('type', 'credit')->sum('amount');
+        $totalExpense   = $financeEntries->where('type', 'debit')->sum('amount');
+        $customFields   = CustomField::where('company_id', $cid)->where('module', 'projects')->where('is_active', true)->orderBy('sort_order')->get();
+        $customValues   = $project->customFieldValues()->get()->keyBy('custom_field_id');
+
+        $pdf = Pdf::loadView('pdf.project', compact(
+            'project', 'company', 'financeEntries', 'totalReceived', 'totalExpense', 'customFields', 'customValues'
+        ))->setPaper('a4');
+
+        return $pdf->stream('project-' . $project->project_code . '.pdf');
     }
 
     public function deleteFile(Project $project, ProjectFile $file): RedirectResponse

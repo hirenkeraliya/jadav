@@ -61,7 +61,7 @@ class QuotationController extends Controller
     public function show(Quotation $quotation): View
     {
         $this->authorize($quotation);
-        $quotation->load(['customer', 'items', 'termsTemplate', 'revisions', 'project']);
+        $quotation->load(['customer', 'items', 'termsTemplate', 'revisions.revisor', 'project', 'revisor']);
         $company = $this->company();
         return view('quotations.show', compact('quotation', 'company'));
     }
@@ -81,7 +81,7 @@ class QuotationController extends Controller
     {
         $this->authorize($quotation);
         $data = $this->validateQuotation($request);
-        $quotation->update($data);
+        $quotation->update(array_merge($data, ['revised_by' => auth()->id()]));
         $this->syncItems($quotation, $request->input('items', []));
         $quotation->recalculate();
         return redirect()->route('quotations.show', $quotation)->with('success', 'Quotation updated.');
@@ -106,6 +106,7 @@ class QuotationController extends Controller
             ->count() + 1;
         $revision->quotation_number = $quotation->quotation_number . '-R' . $revision->version;
         $revision->status = 'draft';
+        $revision->revised_by = auth()->id();
         $revision->save();
 
         foreach ($quotation->items as $item) {
@@ -120,12 +121,32 @@ class QuotationController extends Controller
         $this->authorize($quotation);
         $cid = $this->companyId();
 
-        $request->validate(['project_name' => ['nullable', 'string']]);
+        $request->validate([
+            'project_name'         => ['nullable', 'string', 'max:255'],
+            'customer_organization' => ['nullable', 'string', 'max:255'],
+            'customer_email'        => ['nullable', 'email', 'max:255'],
+            'customer_mobile'       => ['nullable', 'string', 'max:20'],
+            'customer_address'      => ['nullable', 'string'],
+        ]);
+
+        // Update customer details if provided
+        $customerUpdates = array_filter([
+            'organization' => $request->input('customer_organization'),
+            'email'        => $request->input('customer_email'),
+            'mobile'       => $request->input('customer_mobile'),
+            'address'      => $request->input('customer_address'),
+        ]);
+        if ($customerUpdates) {
+            $quotation->customer->update($customerUpdates);
+        }
+
+        $count = Project::where('company_id', $cid)->withTrashed()->count() + 1;
+        $code  = 'PRJ-' . date('Y') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
 
         $project = Project::create([
             'company_id'       => $cid,
-            'project_code'     => Project::generateCode($cid),
-            'name'             => $request->input('project_name', $quotation->customer->name . ' Project'),
+            'project_code'     => $code,
+            'name'             => $request->input('project_name') ?: ($quotation->customer->name . ' Project'),
             'customer_id'      => $quotation->customer_id,
             'estimated_amount' => $quotation->total,
             'status'           => 'pending',

@@ -13,7 +13,7 @@ class Quotation extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'customer_id', 'quotation_number', 'version', 'parent_id',
+        'company_id', 'customer_id', 'quotation_number', 'version', 'parent_id', 'revised_by',
         'date', 'valid_until', 'discount_type', 'discount_value',
         'tax_label', 'tax_rate', 'subtotal', 'tax_amount', 'discount_amount', 'total',
         'notes', 'status', 'terms_template_id',
@@ -61,6 +61,11 @@ class Quotation extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Quotation::class, 'parent_id');
+    }
+
+    public function revisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'revised_by');
     }
 
     public function revisions(): HasMany

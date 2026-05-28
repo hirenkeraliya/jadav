@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ScopedToCompany;
 use App\Models\Customer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -107,6 +108,26 @@ class CustomerController extends Controller
         $this->authorizeCompany($customer);
         $customer->delete();
         return redirect()->route('customers.index')->with('success', 'Customer deleted.');
+    }
+
+    public function quickStore(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name'         => ['required', 'string', 'max:255'],
+            'organization' => ['nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email', 'max:255'],
+            'mobile'       => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $customer = Customer::create(array_merge($data, [
+            'company_id' => $this->companyId(),
+            'status'     => 'active',
+        ]));
+
+        return response()->json([
+            'id'    => $customer->id,
+            'label' => $customer->name . ($customer->organization ? ' (' . $customer->organization . ')' : ''),
+        ]);
     }
 
     private function authorizeCompany(Customer $customer): void

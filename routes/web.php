@@ -50,10 +50,12 @@ Route::middleware(['auth', 'company.selected'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Customers
+    Route::post('customers/quick-store', [CustomerController::class, 'quickStore'])->name('customers.quick-store');
     Route::resource('customers', CustomerController::class);
 
     // Projects
     Route::resource('projects', ProjectController::class);
+    Route::get('projects/{project}/pdf', [ProjectController::class, 'pdf'])->name('projects.pdf');
     Route::post('projects/{project}/files', [ProjectController::class, 'uploadFile'])->name('projects.files.upload');
     Route::delete('projects/{project}/files/{file}', [ProjectController::class, 'deleteFile'])->name('projects.files.delete');
 

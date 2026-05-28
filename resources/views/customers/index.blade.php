@@ -50,12 +50,10 @@
         @forelse($customers as $customer)
         <tr>
           <td>
-            <a href="{{ route('customers.show', $customer) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">
-              {{ $customer->name }}
-            </a>
             @if($customer->customer_code)
-              <div style="font-size:0.72rem;color:#8b5cf6;font-weight:600;margin-top:2px">{{ $customer->customer_code }}</div>
+              <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:0.8rem;font-weight:800;letter-spacing:0.04em;padding:2px 9px;border-radius:6px;margin-bottom:4px">{{ $customer->customer_code }}</span>
             @endif
+            <div><a href="{{ route('customers.show', $customer) }}" style="font-weight:600;color:#4f46e5;text-decoration:none">{{ $customer->name }}</a></div>
             @if($customer->source)
               <div style="font-size:0.72rem;color:#9ca3af;margin-top:1px">Source: {{ $customer->source }}</div>
             @endif

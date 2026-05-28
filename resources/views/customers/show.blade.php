@@ -8,11 +8,13 @@
 @section('content')
 <div class="page-header">
   <div>
+    @if($customer->customer_code)
+    <div style="margin-bottom:8px">
+      <span style="display:inline-block;background:#ede9fe;color:#6d28d9;font-size:1rem;font-weight:800;letter-spacing:0.04em;padding:4px 14px;border-radius:8px">{{ $customer->customer_code }}</span>
+    </div>
+    @endif
     <h1 class="page-title">{{ $customer->name }}</h1>
-    <p class="page-subtitle">
-      @if($customer->customer_code)<span style="color:#8b5cf6;font-weight:600">{{ $customer->customer_code }}</span> &mdash; @endif
-      {{ $customer->organization ?? 'Individual Client' }}
-    </p>
+    <p class="page-subtitle">{{ $customer->organization ?? 'Individual Client' }}</p>
   </div>
   <div style="display:flex;gap:8px">
     <a href="{{ route('customers.edit', $customer) }}" class="btn btn-secondary">Edit</a>

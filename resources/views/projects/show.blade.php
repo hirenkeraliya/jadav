@@ -17,14 +17,12 @@
       {{-- Status: clickable dropdown for users with permission, static badge otherwise --}}
       @can('projects.change_status')
       @php
-        $allStatuses = ['pending','running','on_hold','delayed','completed','invoiced','cancelled','quotation'];
+        $allStatuses = ['running','on_hold','delayed','completed','cancelled','quotation'];
         $statusColors = [
-          'pending'   => ['bg'=>'#ede9fe','color'=>'#5b21b6'],
           'running'   => ['bg'=>'#d1fae5','color'=>'#065f46'],
           'on_hold'   => ['bg'=>'#ffedd5','color'=>'#9a3412'],
           'delayed'   => ['bg'=>'#fee2e2','color'=>'#991b1b'],
           'completed' => ['bg'=>'#dbeafe','color'=>'#1e40af'],
-          'invoiced'  => ['bg'=>'#f5f3ff','color'=>'#5b21b6'],
           'cancelled' => ['bg'=>'#f3f4f6','color'=>'#6b7280'],
           'quotation' => ['bg'=>'#fef3c7','color'=>'#92400e'],
         ];

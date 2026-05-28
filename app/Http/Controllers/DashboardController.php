@@ -46,7 +46,7 @@ class DashboardController extends Controller
             ->get();
 
         $upcomingDeadlines = Project::where('company_id', $cid)
-            ->whereIn('status', ['running', 'pending'])
+            ->whereIn('status', ['running', 'on_hold'])
             ->whereNotNull('end_date')
             ->where('end_date', '>=', now())
             ->where('end_date', '<=', now()->addDays(30))

@@ -16,7 +16,7 @@
 
 {{-- Status tabs --}}
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
-  @php $statuses = ['','pending','running','on_hold','delayed','completed','invoiced','cancelled']; @endphp
+  @php $statuses = ['','running','on_hold','delayed','completed','cancelled','quotation']; @endphp
   @foreach($statuses as $s)
   <a href="{{ route('projects.index', array_merge(request()->query(), ['status' => $s])) }}"
      style="padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;
@@ -70,7 +70,7 @@
       <tbody>
         @forelse($projects as $project)
         @php
-          $isClosed  = in_array($project->status, ['completed', 'cancelled', 'invoiced']);
+          $isClosed  = in_array($project->status, ['completed', 'cancelled']);
           $isActive  = !$isClosed;
           $today     = now()->startOfDay();
           $start     = $project->start_date;

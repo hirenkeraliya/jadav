@@ -139,7 +139,7 @@ class ProjectController extends Controller
             'end_date'           => ['required', 'date', 'after_or_equal:start_date'],
             'lead_by'            => ['nullable', 'exists:users,id'],
             'scope_of_work'      => ['nullable', 'string'],
-            'status'             => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'status'             => ['required', 'in:quotation,running,on_hold,delayed,completed,cancelled'],
             'priority'           => ['required', 'in:low,medium,high'],
             'internal_notes'     => ['nullable', 'string'],
         ]);
@@ -160,7 +160,7 @@ class ProjectController extends Controller
         abort_unless(auth()->user()->can('projects.change_status'), 403);
 
         $request->validate([
-            'status' => ['required', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'status' => ['required', 'in:quotation,running,on_hold,delayed,completed,cancelled'],
         ]);
 
         $project->update(['status' => $request->status]);

@@ -139,7 +139,7 @@ class QuotationController extends Controller
             'end_date'              => ['nullable', 'date', 'after_or_equal:start_date'],
             'lead_by'               => ['nullable', 'exists:users,id'],
             'priority'              => ['required', 'in:low,medium,high'],
-            'status'                => ['nullable', 'in:quotation,pending,running,on_hold,delayed,completed,invoiced,cancelled'],
+            'status'                => ['nullable', 'in:quotation,running,on_hold,delayed,completed,cancelled'],
             'location'              => ['nullable', 'string', 'max:255'],
             'scope_of_work'         => ['nullable', 'string'],
             'internal_notes'        => ['nullable', 'string'],

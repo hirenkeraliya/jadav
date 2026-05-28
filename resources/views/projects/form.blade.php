@@ -185,7 +185,7 @@
           <div>
             <label class="form-label">Status <span style="color:#ef4444">*</span></label>
             <select name="status" class="form-control" required>
-              @foreach(['pending','running','on_hold','delayed','completed','invoiced','cancelled'] as $s)
+              @foreach(['running','on_hold','delayed','completed','cancelled','quotation'] as $s)
                 <option value="{{ $s }}" {{ old('status', $project->status) == $s ? 'selected' : '' }}>
                   {{ ucfirst(str_replace('_',' ',$s)) }}
                 </option>

@@ -94,12 +94,10 @@ class Project extends Model
     {
         return match($this->status) {
             'quotation'  => '#f59e0b',
-            'pending'    => '#6366f1',
             'running'    => '#10b981',
             'on_hold'    => '#f97316',
             'delayed'    => '#ef4444',
             'completed'  => '#3b82f6',
-            'invoiced'   => '#8b5cf6',
             'cancelled'  => '#6b7280',
             default      => '#6b7280',
         };
